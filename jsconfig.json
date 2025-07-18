@@ -1,0 +1,83 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@async/*": [
+        "pkg/async/*"
+      ],
+      "@cloudinary/*": [
+        "pkg/cloudinary/*"
+      ],
+      "@cmd/*": [
+        "cmd/*"
+      ],
+      "@configs/*": [
+        "configs/*"
+      ],
+      "@consts/*": [
+        "internal/const/*"
+      ],
+      "@context/*": [
+        "pkg/context/*"
+      ],
+      "@global/*": [
+        "global/*"
+      ],
+      "@initializes/*": [
+        "internal/initializes/*"
+      ],
+      "@internal/*": [
+        "internal/*"
+      ],
+      "@loader/*": [
+        "pkg/loader/*"
+      ],
+      "@logger/*": [
+        "pkg/logger/*"
+      ],
+      "@logs/*": [
+        "logs/*"
+      ],
+      "@middlewares/*": [
+        "internal/middlewares/*"
+      ],
+      "@modules/*": [
+        "internal/modules/*"
+      ],
+      "@mongodb/*": [
+        "pkg/mongodb/*"
+      ],
+      "@multer/*": [
+        "pkg/multer/*"
+      ],
+      "@pkg/*": [
+        "pkg/*"
+      ],
+      "@redis/*": [
+        "pkg/redis/*"
+      ],
+      "@response/*": [
+        "pkg/response/*"
+      ],
+      "@storage/*": [
+        "storage/*"
+      ],
+      "@test-dev/*": [
+        "test-dev/*"
+      ],
+      "@utils/*": [
+        "pkg/utils/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "storage/logs"
+  ]
+}
