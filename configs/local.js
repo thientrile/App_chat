@@ -9,17 +9,17 @@ const devlopment = {
   mongodb: {
     schema: "mongodb",
     user: "mongo",
-    pass: "hzOyAWkWMpUUjcwiCKOdWBYSENCrgwwN",
-    host: "hopper.proxy.rlwy.net:47441",
-    database: "app_chat",
+    pass: "JbRhebwthEmdazawqbuhHoJPZujyzIMq",
+    host: "ballast.proxy.rlwy.net:15545",
+    database: "AppChat",
     options: {
       authSource: "admin",
     },
   },
    redis: {
         user: "default",
-        pass: "ojNrMOvcZUsAzBjnUMMHrxNBbaiKutaG",
-        host: "trolley.proxy.rlwy.net:59957",
+        pass: "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
+        host: "trolley.proxy.rlwy.net:31429",
       },
   cloudinary: {
     cloud_name: "dcplqohwd",
@@ -39,9 +39,9 @@ const production = {
   mongodb: {
     schema: "mongodb",
     user: "mongo",
-    pass: "hzOyAWkWMpUUjcwiCKOdWBYSENCrgwwN",
-    host: "hopper.proxy.rlwy.net:47441",
-    database: "app_chat",
+    pass: "JbRhebwthEmdazawqbuhHoJPZujyzIMq",
+    host: "mongodb.railway.internal:27017",
+    database: "AppChat",
     options: {
       authSource: "admin",
     },
@@ -52,8 +52,9 @@ const production = {
     api_secret: "J_ohAUV8PvwaiqTlha3ho0YZ4u4",
   },
   redis: {
+ 
     user: "default",
-    pass: "ojNrMOvcZUsAzBjnUMMHrxNBbaiKutaG",
+    pass: "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
     host: "redis.railway.internal:6379",
   },
 };
