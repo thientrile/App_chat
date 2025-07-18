@@ -1,4 +1,4 @@
-import { Logger } from "@global/global.js";
+import { Logger } from "../../global/global.js";
 import UserActivity from "./UserActivity/UserActivity.model.js";
 
 // Helper function to get request ID or generate one

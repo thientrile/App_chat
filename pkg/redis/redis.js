@@ -2,9 +2,9 @@
 
 "use strict";
 
-import { Consts } from "@internal/const/consts.js";
-import { RedisErrorRespoint } from "@response/error.js";
-import { dbLogger } from "@logger/utils.js";
+import { Consts } from "../../internal/const/consts.js";
+import { RedisErrorRespoint } from "../response/error.js";
+import { dbLogger } from "../logger/utils.js";
 import { createClient } from "redis";
 
 let client = {},

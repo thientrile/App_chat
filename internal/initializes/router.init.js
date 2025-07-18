@@ -1,4 +1,4 @@
-import { Router } from "@internal/router/index.js";
+import { Router } from "../router/index.js";
 
 
 

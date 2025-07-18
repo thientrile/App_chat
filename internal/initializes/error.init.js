@@ -1,6 +1,6 @@
 /** @format */
 
-import { errorLogger, systemLogger } from "@logger/index.js";
+import { errorLogger, systemLogger } from "../../pkg/logger/index.js";
 
 const InitError = (app) => {
   // 404 Not Found handler
@@ -11,7 +11,13 @@ const InitError = (app) => {
   });
 app.use((error, req, res, next) => {
   const statusCode = error.status || 500;
-  console.log(error);
+    Logger.error(`Error occurred: ${error.message}`, {
+      statusCode,
+      stack: error.stack,
+      url: req.originalUrl,
+      method: req.method,
+      ip: req.ip,
+    });
   return res.status(statusCode).json({
     status: 'Error',
     code: statusCode,

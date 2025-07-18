@@ -1,5 +1,5 @@
 // Test script để kiểm tra Redis retry logic
-import { init, getRetryInfo, resetRetryCount, isConnected, forceCloseConnection } from '@redis/redis.js';
+import { init, getRetryInfo, resetRetryCount, isConnected, forceCloseConnection } from '../../pkg/redis/redis.js';
 
 console.log('🧪 Testing Redis retry logic...');
 

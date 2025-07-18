@@ -1,6 +1,6 @@
 
-import { asyncHandler } from '@async/asyncHandler';
-import { healthCheck } from '@internal/controller/index.controller.js';
+import { asyncHandler } from '../../pkg/async/asyncHandler.js';
+import { healthCheck } from '../controller/index.controller.js';
 import express from 'express';
 
 const Router =express.Router();

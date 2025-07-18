@@ -4,9 +4,9 @@
  * Loader is registered via --import flag in package.json scripts
  */
 
-import { httpServer } from '@initializes/index.js';
-import { Config, Logger } from '@global/global.js';
-import { systemLogger } from '@logger/index.js';
+import { httpServer } from '../../internal/initializes/index.js';
+import { Config, Logger } from '../../global/global.js';
+import { systemLogger } from '../../pkg/logger/index.js';
 const port = Config.app.port || 3000;
 
 const server = httpServer.listen(port, () => {

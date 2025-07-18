@@ -1,4 +1,4 @@
-import { SuccessReponse } from "@pkg/response/success";
+import { SuccessReponse } from "../../pkg/response/success.js";
 
 
 

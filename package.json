@@ -4,13 +4,10 @@
   "description": "",
   "main": "./cmd/server/server.js",
   "scripts": {
-    "start": "node --import ./register-loader.js ./cmd/server/server.js",
-    "watch": "node --import ./register-loader.js --watch ./cmd/server/server.js",
-    "ngrok": "ngrok start --config=./ngrok.yml --all",
-    "alias:sync": "node cmd/alias/sync.js",
-    "alias:watch": "node cmd/alias/watch.js",
-    "alias:watch-dev": "node cmd/alias/watch-dev.js",
-    "alias:add": "node cmd/alias/add.js"
+    "start": "node ./cmd/server/server.js",
+    "watch": "node --watch ./cmd/server/server.js",
+    "dev": "node --watch ./cmd/server/server.js",
+    "ngrok": "ngrok start --config=./ngrok.yml --all"
   },
   "keywords": [],
   "author": "",
@@ -33,8 +30,5 @@
     "socket.io": "^4.8.1",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
   }
 }

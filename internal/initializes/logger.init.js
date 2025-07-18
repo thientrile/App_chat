@@ -1,7 +1,7 @@
 /** @format */
 "use strict";
 
-import { Logger } from '@global/global.js';
+import { Logger } from '../../global/global.js';
 
 const InitLogger = async () => {
   try {

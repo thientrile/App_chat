@@ -176,23 +176,6 @@ npm run watch
 npm start
 ```
 
-### Các Scripts khác
-
-```bash
-# Sync aliases
-npm run alias:sync
-
-# Watch aliases
-npm run alias:watch
-
-```bash
-# Add new alias
-npm run alias:add
-
-# Development với alias watching
-npm run alias:watch-dev
-```
-
 ### 🌐 Chạy với Ngrok (Public Tunnel)
 
 Ngrok cho phép bạn tạo public URL cho local server để:
@@ -476,16 +459,14 @@ socket.on('typing_status', (data) => {});
 |--------|-------|
 | `npm start` | Chạy server production mode |
 | `npm run watch` | Chạy server với auto-reload |
-| `npm run dev` | Chạy development mode với alias |
-| `npm run alias:sync` | Đồng bộ module aliases |
-| `npm run alias:watch` | Watch changes cho aliases |
-| `npm run alias:add` | Thêm alias mới |
+| `npm run dev` | Chạy development mode |
+| `npm run ngrok` | Chạy ngrok với config file |
 
 ## 🗂️ Cấu trúc thư mục chi tiết
 
 ### `/cmd/` - Commands
 - `server/server.js`: Main server entry point
-- `alias/`: Module alias management
+- `ngrok/`: Ngrok tunnel management
 
 ### `/internal/` - Core Logic
 - `controller/`: Request handlers

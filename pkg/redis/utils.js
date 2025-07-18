@@ -1,4 +1,4 @@
-import { RedisClient } from "@global/global";
+import { RedisClient } from "../../global/global.js";
 
 /**
  * Set data in Redis.

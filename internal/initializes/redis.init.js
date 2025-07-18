@@ -1,6 +1,6 @@
-import { Logger } from "@global/global";
-import { CreateRedis,  } from "@pkg/redis/redis"
-import { Config } from "@global/global.js";
+import { Logger } from "../../global/global.js";
+import { CreateRedis,  } from "../../pkg/redis/redis.js"
+import { Config } from "../../global/global.js";
 const { user, pass, host } = Config.redis;
 const redisUser = encodeURIComponent(user);
 const redisPass = encodeURIComponent(pass);

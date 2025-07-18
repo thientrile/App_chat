@@ -7,7 +7,7 @@ import InitMongoDB from "./mongodb.init.js";
 import InitRouter from "./router.init.js";
 import InitRedis from "./redis.init.js";
 import express from 'express';
-import { requestLogger, systemLogger } from "@logger/index.js";
+import { requestLogger, systemLogger } from "../../pkg/logger/index.js";
 import { createServer } from 'http';
 const app = express();
 app.use(requestLogger);

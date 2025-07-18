@@ -1,7 +1,7 @@
 // Load configuration
-import Config from '@configs/local.js';
-import Mylogger from '@logger/myLogger.js';
-import { getRedis } from '@redis/redis.js';
+import Config from '../configs/local.js';
+import Mylogger from '../pkg/logger/myLogger.js';
+import { getRedis } from '../pkg/redis/redis.js';
 
 // Lazy-loaded Socket.IO to avoid circular dependency
 let io = null;

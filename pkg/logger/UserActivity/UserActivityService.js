@@ -1,7 +1,7 @@
 /** @format */
 
 import UserActivity from './UserActivity.model.js';
-import { Logger } from '@global/global.js';
+import { Logger } from '../../../global/global.js';
 
 class UserActivityService {
   

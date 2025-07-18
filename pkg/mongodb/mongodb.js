@@ -1,4 +1,4 @@
-import { dbLogger } from "@logger/utils";
+import { dbLogger } from "../logger/utils.js";
 import mongoose from "mongoose";
 
 const connect = (mongoUrl, option = {}) => {

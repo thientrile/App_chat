@@ -3,7 +3,7 @@ import cors from "cors";
 import morgan from "morgan";
 import compression from "compression";
 import express from "express";
-import { requestLogger } from "@logger/utils";
+import { requestLogger } from "../../pkg/logger/utils.js";
 
 const InitMiddle = (app) => {
   app.use(cors());
