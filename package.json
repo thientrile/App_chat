@@ -7,6 +7,8 @@
     "start": "node --import ./register-loader.js ./cmd/server/server.js",
     "watch": "node --import ./register-loader.js --watch ./cmd/server/server.js",
     "dev": "node cmd/alias/watch-dev.js",
+    "health-check": "node --import ./register-loader.js scripts/health-check.js",
+    "deploy:check": "npm run health-check",
     "alias:sync": "node cmd/alias/sync.js",
     "alias:watch": "node cmd/alias/watch.js",
     "alias:watch-dev": "node cmd/alias/watch-dev.js",

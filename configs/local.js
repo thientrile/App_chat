@@ -1,10 +1,10 @@
 const devlopment = {
   app: {
-    name: "MyApp",
+    name: process.env.APP_NAME || "APP_CHAT",
     version: "1.0.0",
     description: "This is a sample application configuration file.",
-    port: 3000,
-    host: "localhost",
+    port: process.env.PORT || 3000,
+    host: process.env.HOST || "localhost",
   },
   mongodb: {
     schema: "mongodb",
@@ -30,11 +30,11 @@ const devlopment = {
 
 const production = {
   app: {
-    name: "MyApp",
+   name: process.env.APP_NAME || "APP_CHAT",
     version: "1.0.0",
     description: "This is a sample application configuration file.",
-    port: 3000,
-    host: "localhost",
+    port: process.env.PORT || 3000,
+    host: process.env.HOST || "localhost",
   },
   mongodb: {
     schema: "mongodb",

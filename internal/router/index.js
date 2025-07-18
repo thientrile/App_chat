@@ -4,7 +4,7 @@ import { healthCheck } from '@internal/controller/index.controller.js';
 import express from 'express';
 
 const Router =express.Router();
-Router.get('/', asyncHandler(healthCheck))
+Router.get('/health-check', asyncHandler(healthCheck))
 
 
 
