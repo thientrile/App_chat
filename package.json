@@ -6,9 +6,7 @@
   "scripts": {
     "start": "node --import ./register-loader.js ./cmd/server/server.js",
     "watch": "node --import ./register-loader.js --watch ./cmd/server/server.js",
-    "dev": "node cmd/alias/watch-dev.js",
-    "health-check": "node --import ./register-loader.js scripts/health-check.js",
-    "deploy:check": "npm run health-check",
+    "ngrok": "ngrok start --config=./ngrok.yml --all",
     "alias:sync": "node cmd/alias/sync.js",
     "alias:watch": "node cmd/alias/watch.js",
     "alias:watch-dev": "node cmd/alias/watch-dev.js",
@@ -30,9 +28,13 @@
     "mongoose": "^8.16.1",
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
+    "ngrok": "^5.0.0-beta.2",
     "redis": "^5.6.0",
     "socket.io": "^4.8.1",
     "winston": "^3.17.0",
     "winston-daily-rotate-file": "^5.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }

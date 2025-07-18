@@ -1,0 +1,8 @@
+version: "2"
+authtoken: 302YsiS2Ct9Dd1MB4bHWD30RBFK_79z3dN1WzqYfrLEmWHzAw
+
+tunnels:
+  sisa-backend:
+    proto: http
+    addr: 3000
+    inspect: true

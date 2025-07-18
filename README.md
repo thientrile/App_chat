@@ -185,11 +185,238 @@ npm run alias:sync
 # Watch aliases
 npm run alias:watch
 
+```bash
 # Add new alias
 npm run alias:add
 
 # Development với alias watching
 npm run alias:watch-dev
+```
+
+### 🌐 Chạy với Ngrok (Public Tunnel)
+
+Ngrok cho phép bạn tạo public URL cho local server để:
+- ✅ Test trên mobile devices
+- ✅ Share với team members  
+- ✅ Demo cho clients
+- ✅ Test webhooks từ external services
+
+---
+
+#### **Bước 1: Chuẩn bị Ngrok**
+
+**1.1. Cài đặt Ngrok**
+
+```bash
+# Option 1: Global install
+npm install -g ngrok
+
+# Option 2: Download binary (Windows/macOS/Linux)
+# Truy cập: https://ngrok.com/download
+```
+
+**1.2. Tạo tài khoản và lấy Auth Token**
+
+1. Đăng ký miễn phí tại: [https://ngrok.com/signup](https://ngrok.com/signup)
+2. Vào Dashboard → Auth → Copy your Authtoken
+3. Cấu hình token:
+
+```bash
+ngrok config add-authtoken YOUR_AUTH_TOKEN_HERE
+```
+
+---
+
+#### **Bước 2: Chạy ứng dụng**
+
+**2.1. Khởi động server local**
+
+```bash
+# Terminal 1: Chạy server
+npm run dev
+# Server sẽ chạy tại http://localhost:3000
+```
+
+**2.2. Chạy Ngrok (chọn 1 trong 3 cách)**
+
+**🔥 Cách 1: Sử dụng script tự động (Khuyến nghị)**
+
+```bash
+# Terminal 2: Chạy script ngrok có sẵn
+node cmd/ngrok/index.js
+```
+
+Script này sẽ:
+- Tự động tạo tunnel
+- Ghi URL vào file `.env`
+- Hiển thị thông tin chi tiết
+
+**⚡ Cách 2: Chạy ngrok trực tiếp**
+
+```bash
+# Terminal 2: Ngrok manual
+ngrok http 3000
+```
+
+**🎯 Cách 3: Sử dụng config file**
+
+```bash
+# Terminal 2: Dùng config có sẵn
+ngrok start sisa-backend
+```
+
+---
+
+#### **Bước 3: Kết quả và Testing**
+
+**3.1. Output mong đợi**
+
+```bash
+🔗 Ngrok tunnel opened at: https://abc123-def456.ngrok-free.app
+✅ API_URL written to .env
+📊 Ngrok dashboard: http://127.0.0.1:4040
+```
+
+**3.2. Test API endpoints**
+
+```bash
+# Health check
+curl https://abc123-def456.ngrok-free.app/health-check
+
+# Test API
+curl https://abc123-def456.ngrok-free.app/api/users
+
+# WebSocket test (nếu có frontend)
+# Kết nối Socket.IO tới ngrok URL
+```
+
+---
+
+#### **Bước 4: Cấu hình Frontend/Mobile**
+
+**4.1. Environment Variables**
+
+File `.env` được tự động cập nhật:
+
+```env
+# Được script tự động thêm
+API_URL=https://abc123-def456.ngrok-free.app
+
+# Sử dụng trong frontend
+REACT_APP_API_URL=https://abc123-def456.ngrok-free.app
+EXPO_PUBLIC_API_URL=https://abc123-def456.ngrok-free.app
+```
+
+**4.2. Frontend code example**
+
+```javascript
+// React/React Native
+const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3000';
+
+// Expo
+const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
+
+// Fetch API
+fetch(`${API_BASE}/api/users`)
+  .then(res => res.json())
+  .then(data => console.log(data));
+```
+
+---
+
+#### **Bước 5: Monitoring & Debug**
+
+**5.1. Ngrok Web Dashboard**
+
+Truy cập: [http://127.0.0.1:4040](http://127.0.0.1:4040)
+
+Xem được:
+- 📊 Request/Response logs
+- 📈 Traffic statistics
+- 🐛 Error details
+- ⏱️ Response times
+
+**5.2. Advanced Options**
+
+```bash
+# Custom subdomain (Pro plan required)
+ngrok http 3000 --subdomain=my-chat-app
+
+# Basic authentication
+ngrok http 3000 --basic-auth="username:password"
+
+# Custom domain (Business plan)
+ngrok http 3000 --hostname=api.mycompany.com
+
+# Specific region
+ngrok http 3000 --region=ap  # Asia Pacific
+```
+
+---
+
+#### **Bước 6: Troubleshooting**
+
+**6.1. Lỗi thường gặp**
+
+| Lỗi | Nguyên nhân | Giải pháp |
+|-----|-------------|-----------|
+| `tunnel not found` | Config sai hoặc token expired | `ngrok config check` → `ngrok authtoken YOUR_TOKEN` |
+| `failed to start tunnel` | Port đã được sử dụng | Đổi port hoặc kill process: `lsof -ti:3000 \| xargs kill -9` |
+| `too many connections` | Vượt limit free plan | Upgrade plan hoặc giảm số request |
+| `CORS error` | Frontend không được phép | Thêm ngrok domain vào CORS config |
+
+**6.2. Debugging commands**
+
+```bash
+# Kiểm tra status
+ngrok --version
+ngrok config check
+
+# Restart ngrok
+ngrok kill
+ngrok http 3000
+
+# Xem logs chi tiết
+ngrok http 3000 --log=stdout --log-level=debug
+```
+
+**6.3. CORS Configuration**
+
+```javascript
+// Trong server code (app.js hoặc server.js)
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'http://localhost:8080',
+    'https://*.ngrok-free.app',    // Cho phép tất cả ngrok domains
+    'https://*.ngrok.io'           // Legacy domains
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
+```
+
+---
+
+#### **📋 Quick Reference**
+
+```bash
+# 🚀 Quick Start (All-in-one)
+npm run dev                    # Terminal 1
+node cmd/ngrok/index.js        # Terminal 2
+
+# 📊 Useful URLs
+http://localhost:3000          # Local server
+http://127.0.0.1:4040          # Ngrok dashboard
+https://dashboard.ngrok.com    # Ngrok account dashboard
+
+# 🛠️ Useful commands
+ngrok http 3000               # Basic tunnel
+ngrok kill                    # Stop all tunnels
+ngrok --help                  # Show help
+```
+
+## 📡 API Documentation
 ```
 
 ## 📡 API Documentation

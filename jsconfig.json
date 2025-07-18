@@ -18,7 +18,7 @@
         "configs/*"
       ],
       "@consts/*": [
-        "internal/const/*"
+        "internal/consts/*"
       ],
       "@context/*": [
         "pkg/context/*"
