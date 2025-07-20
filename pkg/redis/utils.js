@@ -27,7 +27,6 @@ const getData = async (key) => {
 
 const incr = async (key, ttl = 60) => {
   try {
-    const client = getRedis().intanceConnect;
     const result = await RedisClient.incr(key);
     if (result === 1) {
       await RedisClient.expire(key, ttl);
