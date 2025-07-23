@@ -1,60 +1,54 @@
-var admin = require("firebase-admin");
-
-var serviceAccount = require("./storage/app_chat.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-/**
- * Gửi thông báo tin nhắn đến các thiết bị qua Firebase Cloud Messaging
- * @param {string[]} tokens - Mảng các token thiết bị
- * @param {Object} messageData - Dữ liệu tin nhắn
- * @param {string} messageData.title - Tiêu đề tin nhắn
- * @param {string} messageData.body - Nội dung tin nhắn
- * @param {Object} messageData.data - Dữ liệu bổ sung
- * @returns {Promise<Object>} Kết quả gửi thông báo
- */
-const pushMessage = async (tokens, messageData) => {
+import admin from "firebase-admin"
+export const pushMessage = async (tokens, messageData) => {
   try {
-    if (!tokens || tokens.length === 0) {
-      throw new Error('Không có token thiết bị được cung cấp');
-    }
+    if (!admin.apps.length) throw new Error("Firebase chưa được khởi tạo.");
+    if (!tokens?.length) throw new Error("Không có token thiết bị.");
 
     const message = {
+      tokens,
       notification: {
         title: messageData.title,
         body: messageData.body,
       },
-      data: messageData.data || {},
-      tokens: tokens,
+      data: Object.fromEntries(
+        Object.entries(messageData.data || {}).map(([k, v]) => [k, String(v)])
+      ),
       android: {
-        priority: 'high',
+        priority: "high",
         notification: {
-          sound: 'default',
-          channelId: 'chat_messages'
-        }
+          sound: "default",
+          channelId: "chat_messages",
+        },
       },
       apns: {
         payload: {
           aps: {
-            sound: 'default',
+            sound: "default",
             badge: 1,
           },
         },
       },
     };
 
-    const response = await admin.messaging().sendMulticast(message);
+    const response = await admin.messaging().sendEachForMulticast(message);
+console.log(
+  JSON.stringify(
+    response.responses.map((r) => ({
+      success: r.success,
+      error: r.error ? r.error.message : null,
+      code: r.error ? r.error.code : null,
+    })),
+    null,
+    2
+  )
+);
     return {
-      success: response.successCount,
-      failure: response.failureCount,
-      results: response.responses,
+      success: response.responses.filter(r => r.success).length,
+      failure: response.responses.filter(r => !r.success).length,
+      responses: response.responses,
     };
-  } catch (error) {
-    console.error('Lỗi khi gửi thông báo:', error);
-    throw error;
+  } catch (err) {
+    console.error("❌ pushMessage lỗi:", err.message);
+    throw err;
   }
 };
-
-export default pushMessage; // cũng có thể dùng export default nếu cần

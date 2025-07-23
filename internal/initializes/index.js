@@ -9,6 +9,7 @@ import express from 'express';
 import { requestLogger, systemLogger } from "../../pkg/logger/index.js";
 import { createServer } from 'http';
 import InitSocketIo from "./socketIo.init.js";
+import InitFirebase from "./firebase.ini.js";
 const app = express();
 app.use(requestLogger);
 
@@ -21,6 +22,7 @@ await InitRedis()
 // Initialize middleware
 InitMiddle(app);
 
+InitFirebase();
 
 InitMongoDB();
 // Initialize routes
