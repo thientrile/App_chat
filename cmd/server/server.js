@@ -5,7 +5,7 @@
  */
 
 import { httpServer } from '../../internal/initializes/index.js';
-import { Config, Logger } from '../../global/global.js';
+import { Config, Logger } from '../../global.js';
 import { systemLogger } from '../../pkg/logger/index.js';
 const port = Config.app.port || 3000;
 

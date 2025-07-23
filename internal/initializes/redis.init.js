@@ -1,4 +1,4 @@
-import { Config } from "../../global/global.js";
+import { Config } from "../../global.js";
 import { initRedis } from "../../pkg/redis/redis.js";
 const { user, pass, host } = Config.redis;
 const redisUser = encodeURIComponent(user);
