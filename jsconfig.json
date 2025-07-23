@@ -1,83 +1,13 @@
 {
-  "compilerOptions": {
-    "baseUrl": ".",
-    "module": "ESNext",
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "paths": {
-      "@async/*": [
-        "pkg/async/*"
-      ],
-      "@cloudinary/*": [
-        "pkg/cloudinary/*"
-      ],
-      "@cmd/*": [
-        "cmd/*"
-      ],
-      "@configs/*": [
-        "configs/*"
-      ],
-      "@consts/*": [
-        "internal/consts/*"
-      ],
-      "@context/*": [
-        "pkg/context/*"
-      ],
-      "@global/*": [
-        "global/*"
-      ],
-      "@initializes/*": [
-        "internal/initializes/*"
-      ],
-      "@internal/*": [
-        "internal/*"
-      ],
-      "@loader/*": [
-        "pkg/loader/*"
-      ],
-      "@logger/*": [
-        "pkg/logger/*"
-      ],
-      "@logs/*": [
-        "logs/*"
-      ],
-      "@middlewares/*": [
-        "internal/middlewares/*"
-      ],
-      "@modules/*": [
-        "internal/modules/*"
-      ],
-      "@mongodb/*": [
-        "pkg/mongodb/*"
-      ],
-      "@multer/*": [
-        "pkg/multer/*"
-      ],
-      "@pkg/*": [
-        "pkg/*"
-      ],
-      "@redis/*": [
-        "pkg/redis/*"
-      ],
-      "@response/*": [
-        "pkg/response/*"
-      ],
-      "@storage/*": [
-        "storage/*"
-      ],
-      "@test-dev/*": [
-        "test-dev/*"
-      ],
-      "@utils/*": [
-        "pkg/utils/*"
-      ]
-    }
-  },
-  "include": [
-    "**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "storage/logs"
-  ]
+    "compilerOptions": {
+        // "checkJs": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "ESNext", // 👈 Bắt buộc phải để ESNext hoặc ES6
+        "moduleResolution": "node",
+          "esModuleInterop": true,   // 👈 Cho phép import mặc định đẹp đẽ
+    },
+    "include": [
+        "./**/*.js"
+    ]
+    
 }

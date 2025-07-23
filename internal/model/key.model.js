@@ -12,7 +12,15 @@ const keySchema = new Schema({
         ref: 'User',
         required: true,
     },
-    
+    key_clientId:{
+        type: String,
+        required: true,
+    },
+    key_fcmToken:{
+        type: String,
+        unique: true,
+        sparse: true, // Cho phép giá trị null hoặc không có
+    },
     key_jit:{
         type:Array,       
         default: [],

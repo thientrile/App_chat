@@ -1,4 +1,3 @@
-import { RedisClient } from "../../global/global.js";
 
 /**
  * Set data in Redis.
@@ -12,24 +11,24 @@ const setData = async (key, value, expireTime) => {
     const data = JSON.stringify(value);
 
     if (expireTime) {
-      await RedisClient.setEx(key, expireTime, data); // Using setEx for expiration
+      await  global.RedisClient.setEx(key, expireTime, data); // Using setEx for expiration
     } else {
-      await RedisClient.set(key, data); // Simple set without expiration
+      await  global.RedisClient.set(key, data); // Simple set without expiration
     }
   } catch (err) {
     console.error("redis error".err);
   }
 };
 const getData = async (key) => {
-  const data = await RedisClient.get(key);
+  const data = await  global.RedisClient.get(key);
   return JSON.parse(data);
 };
 
 const incr = async (key, ttl = 60) => {
   try {
-    const result = await RedisClient.incr(key);
+    const result = await  global.RedisClient.incr(key);
     if (result === 1) {
-      await RedisClient.expire(key, ttl);
+      await  global.RedisClient.expire(key, ttl);
     }
     return result;
   } catch (err) {

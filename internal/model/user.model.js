@@ -31,16 +31,12 @@ const userSchema = new Schema({
         type: String,
         default: "Not Specified",
     },
-    usr_stauts:{
+    usr_status:{
         type: String,
         unique: true,
         enum:['active', 'inactive', 'banned'],
     }, 
-    usr_fcmToken:{
-        type: String,
-        unique: true,
-        sparse: true // Cho phép giá trị null hoặc không có
-    },      
+ 
 },{
     timestamps: true,    collection: Collections,
 })

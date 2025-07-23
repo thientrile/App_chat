@@ -3,7 +3,7 @@ const devlopment = {
     name: process.env.APP_NAME || "APP_CHAT",
     version: "1.0.0",
     description: "This is a sample application configuration file.",
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 3001,
     host: process.env.HOST || "localhost",
   },
   mongodb: {
