@@ -1,39 +1,38 @@
+import { randomUUID } from 'crypto';
 import {
     model,
     Schema
-}
-from 'mongoose';
+} from 'mongoose';
+import { v4 as uuidv4 } from "uuid";
 const Documents = "Key";
 const Collections = "Keys";
 
-const keySchema = new Schema({
-    key_userId:{
+const tknSchema = new Schema({
+    tkn_userId: {
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
-    key_clientId:{
-        type: String,
-        required: true,
-    },
-    key_fcmToken:{
-        type: String,
+    tkn_clientId: {
+        type: String, // ← fix chỗ này
+        default: () => randomUUID(),
         unique: true,
-        sparse: true, // Cho phép giá trị null hoặc không có
+        index: true,
     },
-    key_jit:{
-        type:Array,       
-        default: [],
+    tkn_fcmToken: {
+        type: String,
+        // unique: true,
+        default: null,
     },
-    key_userAgent:{
-        type:Array,
+    tkn_jit: {
+        type: Array,
         default: [],
     }
-},{
+
+}, {
     timestamps: true,
     collection: Collections,
 })
 
-keySchema.index({ key_userId: 1 }, { unique: true });
 
-export default model(Documents, keySchema);
+export default model(Documents, tknSchema);

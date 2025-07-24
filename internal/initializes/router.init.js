@@ -1,9 +1,11 @@
-import { Router } from "../router/index.js";
+import Router from "../router/index.js";
+
 
 
 
 const InitRouter= (app) => {
-    // app.use("", Router);   
+
+   app.use("/api", Router); 
 }
 
 export default InitRouter;

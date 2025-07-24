@@ -1,5 +1,6 @@
 /** @format */
 
+import { Logger } from "../../global.js";
 import { errorLogger, systemLogger } from "../../pkg/logger/index.js";
 
 const InitError = (app) => {
@@ -9,8 +10,9 @@ const InitError = (app) => {
     error.status = 404;
     next(error);
   });
-app.use((error, req, res, next) => {
-  const statusCode = error.status || 500;
+  app.use((error, req, res, next) => {
+    const statusCode = error.status || 500;
+    console.log(error.stack);
     Logger.error(`Error occurred: ${error.message}`, {
       statusCode,
       stack: error.stack,
@@ -18,12 +20,12 @@ app.use((error, req, res, next) => {
       method: req.method,
       ip: req.ip,
     });
-  return res.status(statusCode).json({
-    status: 'Error',
-    code: statusCode,
-    message: error.message || 'Internal Server Error'
+    return res.status(statusCode).json({
+      status: 'Error',
+      code: statusCode,
+      message: error.message || 'Internal Server Error'
+    });
   });
-});
   // Global error management function with logging
   // app.use(errorLogger);
 

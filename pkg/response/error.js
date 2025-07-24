@@ -115,8 +115,16 @@ class RedisErrorRespoint extends ErrorResponse {
     super(message, statusCode);
   }
 }
-
+const getErrorMessageMongose = (error, message = "") => {
+  if (error.errors) {
+    for (const key in error.errors) {
+      return error.errors[key]?.properties.message;
+    }
+  }
+  return message;
+};
 export {
+  getErrorMessageMongose,
   ConflictRequestError,
   BadRequestError,
   AuthFailureError,

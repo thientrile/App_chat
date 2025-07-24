@@ -29,11 +29,11 @@ InitMongoDB();
 InitRouter(app);
 
 
-InitError(app);
 
 
 
 const httpServer = createServer(app);
 // init access control
 await InitSocketIo(httpServer);
+InitError(app);
 export { httpServer };

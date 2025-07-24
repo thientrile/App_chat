@@ -7,7 +7,7 @@ initFirebase();
 
 const test = async () => {
   const tokens = [
-    "d2-lJp6tQca0qEjXWRfsu_:APA91bFpK4t8iTmZx41u5u555PsDuGzrs9X4vc_pgzxynrFMbCPIrtzvKjMX2WBBl_of4CZNDOo3QIN2bjkoHiMwLgFIqa1rrPMAH6rI77rfTDWcAd7FJMQ",
+    "dF1QnGAYRESNKgGGZqVvD2:APA91bHgu3fZPaF6ScMw9xwxW0drN2eoodqd0_iHKBKPSnlj93V_1ZwoUYOtQ2SFBcCJKq4Bx9d42VNmKvngj--8a2iSEvsOOmytPbw3FntgHGxaErFfMNg",
   ];
 
   const message = {
