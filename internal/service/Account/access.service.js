@@ -2,7 +2,7 @@ import { compare, hash } from "bcrypt";
 import { addPrefixToKeys, convertToObjectIdMongoose, isValidation } from "../../../pkg/utils/index.utils.js";
 import userModel from "../../model/user.model.js";
 import { createKeyToken } from "./key.service.js";
-import { ForbiddenError, getErrorMessageMongose } from "../../../pkg/response/error.js";
+import { AuthFailureError, ForbiddenError, getErrorMessageMongose } from "../../../pkg/response/error.js";
 import { userFindByusername } from "../../repository/user.repo.js";
 import { createTokenPair } from "../../../pkg/token/utils.js";
 import { adddJitToKeyToken, tkn_deleteOne } from "../../repository/key.repo.js";
@@ -64,9 +64,10 @@ const loginAccount = async (payload) => {
 
 }
 const refreshToken = async (decoded) => {
+    
   const [tokens] = await Promise.all([
     createTokenPair({ userId: decoded.userId, clientId: decoded.clientId }),
-    setData(keyRedisLogout(decoded.userId, decoded.jit)),
+    setData(keyRedisLogout(decoded.userId, decoded.jit),1),
     adddJitToKeyToken(decoded.clientId, decoded.jit),
   ]);
   if (!tokens) {
@@ -78,7 +79,7 @@ const refreshToken = async (decoded) => {
 }
 const logoutAccount = async (decoded) => {
   await Promise.all([
-    setData(keyRedisLogout(decoded.userId, decoded.jit)),
+    setData(keyRedisLogout(decoded.userId, decoded.jit),1),
     tkn_deleteOne({ tkn_userId: convertToObjectIdMongoose(decoded.userId), tkn_clientId: decoded.clientId })
   ])
 

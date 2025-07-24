@@ -17,14 +17,7 @@ const privateKey = await importPKCS8(privateKeyPem, "RSA-OAEP");
 
 const authertication = async (req, res, next) => {
   try {
-    // const clientId = req.headers[headers.CLIENT_ID];
-    // if (!clientId || clientId == "undefined")
-    //   throw new AuthFailureError("Token has expired");
-
-    // const keyStore = await tkn_checkKeyTokenVerify(clientId);
-    // if (!keyStore) throw new AuthFailureError("Token has expired");
-
-    // const userId = keyStore.tkn_userId.toString();
+   
 
     let token =
       req.headers[headers.REFRESHTOKEN] || req.headers[headers.AUTHORIZATION];
@@ -40,22 +33,22 @@ const authertication = async (req, res, next) => {
     }
     const keyStore = await tkn_checkKeyTokenVerify(decrypted.clientId);
     if (!keyStore) throw new AuthFailureError("Token has expired");
-
+    
     const userId = keyStore.tkn_userId.toString();
     if (userId !== decrypted.userId) throw new AuthFailureError("Token has expired");
     const logout = await getData(keyRedisLogout(userId, decrypted.jit));
     if (logout || keyStore.tkn_jit.includes(decrypted.jit)) {
       throw new AuthFailureError("Token has expired");
     }
-
-
+    
+    
     req.token = token;
     req.decoded = decrypted;
 
-    next();
   } catch (err) {
     return next(err);
   }
+  next();
 };
 
 export default authertication;

@@ -6,12 +6,10 @@ import InitMongoDB from "./mongodb.init.js";
 import InitRouter from "./router.init.js";
 import InitRedis from "./redis.init.js";
 import express from 'express';
-import { requestLogger, systemLogger } from "../../pkg/logger/index.js";
 import { createServer } from 'http';
 import InitSocketIo from "./socketIo.init.js";
 import InitFirebase from "./firebase.ini.js";
 const app = express();
-app.use(requestLogger);
 
 
 

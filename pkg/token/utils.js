@@ -2,13 +2,14 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { v4 as uuidv4 } from "uuid";
 import { EncryptJWT, importSPKI } from "jose";
+import { randomUUID } from "node:crypto";
 const createTokenPair = async (payload) => {
     const publicKeyPem = readFileSync(
         path.resolve(process.cwd(), "./storage/public.pem"),
         "utf8"
     );
     const publicKey = await importSPKI(publicKeyPem, "RSA-OAEP");
-    const jit = uuidv4();
+    const jit = randomUUID();
     payload.jit = jit;
     const accessToken = await new EncryptJWT(payload)
         .setProtectedHeader({ alg: "RSA-OAEP", enc: "A256GCM" })
