@@ -12,7 +12,7 @@ const InitError = (app) => {
   });
   app.use((error, req, res, next) => {
     const statusCode = error.status || 500;
-    console.log(error.stack);
+    // console.log(error.stack);
     Logger.error(`Error occurred: ${error.message}`, {
       statusCode,
       stack: error.stack,

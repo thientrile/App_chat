@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import admin from "firebase-admin";
-import e from "cors";
+import { systemLogger } from "../../pkg/logger";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,9 +17,9 @@ const serviceAccount = JSON.parse(
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
     });
-    console.log("✅ Firebase đã được khởi tạo.");
+    systemLogger.startup("Firebase", "Initialized");
   } else {
-    console.log("ℹ️ Firebase đã được khởi tạo trước đó.");
+    systemLogger.shutdown("Firebase", "Already initialized");
   }
 };
 export default initFirebase;
