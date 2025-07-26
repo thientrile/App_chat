@@ -55,6 +55,7 @@ const authertication = async (req, res, next) => {
     // Token hợp lệ
     req.token = token;
     req.decoded = decrypted;
+    req.userId = userId;
 
     next();
   } catch (err) {
