@@ -10,8 +10,9 @@ const messageEventSchema = new Schema({
         type: String,
         enum: ['readed','del_only','del_all'],
         required: true,
+        default: 'readed',
     },
-    event_serverId:{
+    event_senderId:{
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,

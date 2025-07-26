@@ -7,8 +7,8 @@ import InitRouter from "./router.init.js";
 import InitRedis from "./redis.init.js";
 import express from 'express';
 import { createServer } from 'http';
-import InitSocketIo from "./socketIo.init.js";
 import InitFirebase from "./firebase.ini.js";
+import InitSocketIO from "./socketIo.init.js";
 const app = express();
 
 
@@ -31,7 +31,6 @@ InitRouter(app);
 
 
 const httpServer = createServer(app);
-// init access control
-InitSocketIo(httpServer, global.RedisClient);
+await InitSocketIO(httpServer);
 InitError(app);
-export { httpServer };
+export { httpServer, };
