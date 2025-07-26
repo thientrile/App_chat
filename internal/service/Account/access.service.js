@@ -53,7 +53,7 @@ const loginAccount = async (payload) => {
     throw new Error("User not found");
   }
   const infor= removePrefixFromKeys(user, "usr_");
-  const isPasswordValid = await compare(password, user.salt);
+  const isPasswordValid = await compare(password, user.usr_salt);
   if (!isPasswordValid) {
     throw new Error("Invalid password");
   }
