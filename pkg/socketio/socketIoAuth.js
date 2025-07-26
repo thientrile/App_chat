@@ -56,7 +56,7 @@ export const socketAuthMiddleware = async (socket, next) => {
     socket.token = token;
     socket.decoded = decrypted;
     await setData(`user_sockets:${decrypted.userId}`, socket.id);
-    await pushToArray(Consts.ONLINE_USERS_KEY, decrypted.userId);
+    await pushToArray(Consts.ONLINE_USERS_KEY, decrypted.userId.toString());
     return next();
   } catch (err) {
     console.error("❌ Socket auth failed:", err.message);
@@ -70,15 +70,16 @@ export const socketDisconnectMiddleware = async (socket, next) => {
   console.log(`💤 ${socket.decoded.userId} đã offline`);
   await delKey(`user_sockets:${socket.decoded.userId}`);
   // 3. Nếu user không còn socket nào → offline
+  await removeFromArray(Consts.ONLINE_USERS_KEY, socket.decoded.userId.toString());
   const userSocketList = await getArray(Consts.ONLINE_USERS_KEY);
   const stillOnline = userSocketList && userSocketList.length > 0;
 
-  if (!stillOnline) {
+  if (stillOnline) {
     // 3. Không còn socket nào → xem như user offline → xoá khỏi danh sách online
-    await removeFromArray(Consts.ONLINE_USERS_KEY, socket.decoded.userId);
-    console.log(`🚪 User ${socket.decoded.userId} đã OFFLINE toàn bộ.`);
+    console.log(`🟢 User ${socket.decoded.userId} vẫn còn ${userSocketList.length } socket khác.`);
   } else {
-    console.log(`🟢 User ${socket.decoded.userId} vẫn còn ${userSocketList.length} socket khác.`);
+    console.log(`🚪 User ${socket.decoded.userId} đã OFFLINE toàn bộ.`);
+
   }
   // next();
 }
