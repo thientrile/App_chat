@@ -1,6 +1,28 @@
 import { Types } from "mongoose";
 
+import _ from "lodash";
 
+/**
+ * Chỉ lấy các field được chỉ định từ object
+ * @param {Object} options
+ * @param {Array} options.fields - Danh sách field cần lấy
+ * @param {Object} options.object - Object nguồn
+ * @returns {Object}
+ */
+ const getInfoData = ({ fields = [], object = {} }) => {
+  return _.pick(object, fields);
+};
+
+/**
+ * Bỏ qua các field được chỉ định từ object
+ * @param {Object} options
+ * @param {Array} options.fields - Danh sách field cần loại
+ * @param {Object} options.object - Object nguồn
+ * @returns {Object}
+ */
+ const omitInfoData = ({ fields = [], object = {} }) => {
+  return _.omit(object, fields);
+};
 const convertToObjectIdMongoose = (id) => new Types.ObjectId(id);
 const convertToUUIDMongoose = (id) => new Types.UUID(id);
 const randomId = () => {
@@ -74,4 +96,6 @@ export {
   convertToUUIDMongoose,
   randomId,
   isValidation,
+  getInfoData,
+  omitInfoData
 };

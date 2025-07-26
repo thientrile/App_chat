@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import { addPrefixToKeys, convertToObjectIdMongoose, isValidation } from "../../../pkg/utils/index.utils.js";
+import { addPrefixToKeys, convertToObjectIdMongoose, isValidation, omitInfoData, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import userModel from "../../model/user.model.js";
 import { createKeyToken } from "./key.service.js";
 import { AuthFailureError, ForbiddenError, getErrorMessageMongose } from "../../../pkg/response/error.js";
@@ -31,13 +31,14 @@ const registerAccount = async (body) => {
       )
     );
   });
+  const user = removePrefixFromKeys(newUser.toObject(), "usr_");
   const tokens = await createKeyToken(newUser._id.toString());
   if (!tokens) {
     await userDeleteById(newUser._id);
     throw new AuthFailureError(" Unable to create account");
   }
   return{
-    username,
+    user: omitInfoData({ fields: ["salt","_id","status","slug","__v","createdAt","updatedAt"], object: user }),
     tokens
   };
 
@@ -46,10 +47,12 @@ const registerAccount = async (body) => {
 const loginAccount = async (payload) => {
   const { username, password } = payload;
   const user = await userFindByusername(username);
+  
   if (!user) {
     throw new Error("User not found");
   }
-  const isPasswordValid = await compare(password, user.usr_salt);
+  const infor= removePrefixFromKeys(user, "usr_");
+  const isPasswordValid = await compare(password, user.salt);
   if (!isPasswordValid) {
     throw new Error("Invalid password");
   }
@@ -58,7 +61,7 @@ const loginAccount = async (payload) => {
     throw new AuthFailureError("Unable to login");
   }
  return{
-    username,
+   user: omitInfoData({ fields: ["salt","_id","status","slug","__v","createdAt","updatedAt"], object: infor }),
     tokens
   };;
 

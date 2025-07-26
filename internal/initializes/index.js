@@ -32,6 +32,6 @@ InitRouter(app);
 
 const httpServer = createServer(app);
 // init access control
-await InitSocketIo(httpServer);
+InitSocketIo(httpServer, global.RedisClient);
 InitError(app);
 export { httpServer };
