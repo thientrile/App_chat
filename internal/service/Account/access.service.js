@@ -16,12 +16,13 @@ const registerAccount = async (body) => {
   const { username, password, fullname } = body;
   data.salt = await hash(password, 10);
   data.fullname = fullname;
-  data.avatar = `https://ui-avatars.com/api/?name=${fullname}&background=random`
+  data.avatar = `https://ui-avatars.com/api/?name=${fullname.replace(" ","-")}&background=random`
   if (isValidation.isEmail(username)) {
     data.email = username;
   } else if (isValidation.isPhoneNumber(username)) {
     data.phone = username;
   }
+  console.log(data);
   const newUser = await userModel.create(addPrefixToKeys(data, "usr_")).catch((err) => {
     throw new ForbiddenError(
       getErrorMessageMongose(
