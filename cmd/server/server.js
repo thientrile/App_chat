@@ -3,6 +3,7 @@
  * 
  * Loader is registered via --import flag in package.json scripts
  */
+import 'dotenv/config'; // ← ES module
 
 import { httpServer } from '../../internal/initializes/index.js';
 import { Config, Logger } from '../../global.js';

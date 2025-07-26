@@ -38,11 +38,11 @@ const tkn_checkKeyTokenVerify = async (clientId) => {
 
     {
       $project: {
-        id:"$usr_id",
+        id: "$usr_id",
         _id: 0,
         tkn_clientId: 1,
         tkn_userId: 1,
-        tkn_jit: 1,       
+        tkn_jit: 1,
         status: "$user.usr_status",
         info: "$user",
       },
@@ -69,7 +69,7 @@ const adddJitToKeyToken = async (clientId, jit) => {
     }
   );
 }
-const updateFcmToken= async (clientId, fcmToken) => {
+const updateFcmToken = async (clientId, fcmToken) => {
   return keytokenModel.findOneAndUpdate(
     {
       tkn_clientId: clientId,
@@ -78,9 +78,15 @@ const updateFcmToken= async (clientId, fcmToken) => {
       tkn_fcmToken: fcmToken,
     },
     {
-      new: true,    
+      new: true,
     }
-  );  
+  );
+}
+const getAllFcmToken = async (userId) => {
+  const tokens = await keytokenModel.find({ tkn_userId: userId, tkn_fcmToken: { $ne: null } })
+    .select('tkn_fcmToken -_id');
+  return tokens.map(doc => doc.tkn_fcmToken);
+
 }
 export {
   adddJitToKeyToken,
@@ -89,4 +95,5 @@ export {
   tkn_deleteOne,
   tkn_updateOne,
   tkn_checkKeyTokenVerify,
+  getAllFcmToken,
 };

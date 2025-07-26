@@ -5,12 +5,12 @@ import {
 const Documents = "Friendship";
 const Collections = "Friendships";
 const friendshipSchema = new Schema({
-    frp_userId:{
+    frp_userId1:{
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
-    frp_friendId:{
+    frp_userId2:{
         type: Schema.Types.ObjectId,
         ref: 'User',
         required: true,
@@ -24,3 +24,4 @@ const friendshipSchema = new Schema({
     timestamps: true,
     collection: Collections,
 })
+export default model(Documents, friendshipSchema);

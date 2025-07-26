@@ -2,8 +2,8 @@
 
 
 
-const keyRedisLogout = (userId, jit) => {
-  return `logout:${userId}:${jit}`;
+const keyRedisLogout = (userId) => {
+  return `logout::${userId}`;
 };
 
 export{

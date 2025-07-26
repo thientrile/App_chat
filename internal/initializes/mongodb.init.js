@@ -1,7 +1,8 @@
 /** @format */
 'use strict';
 
-import {Config} from '../../global.js';
+
+import { Config } from '../../global.js';
 import { mongoConnet } from '../../pkg/mongodb/mongodb.js';
 // Access global Config that was loaded in index.js
 const { schema, user, pass, host, database, options } = Config.mongodb;

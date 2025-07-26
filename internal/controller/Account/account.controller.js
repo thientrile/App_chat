@@ -1,5 +1,6 @@
 import { SuccessReponse } from "../../../pkg/response/success.js";
-import { loginAccount, logoutAccount, refreshToken, registerAccount, sendFriendRequestToStranger } from "../../service/Account/access.service.js";
+import { loginAccount, logoutAccount, refreshToken, registerAccount,  } from "../../service/Account/access.service.js";
+import { sendFriendRequestToStranger } from "../../service/Account/friendship.service.js";
 import { setFcmToken } from "../../service/Account/key.service.js";
 
 

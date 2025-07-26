@@ -9,7 +9,7 @@ import { Server } from "socket.io";
  * @param {Function[]} socketHandlers - Mảng các hàm xử lý socket, mỗi hàm nhận socket làm tham số
  * @returns {Promise<Server>} - Trả về instance io
  */
-export async function initSocketIO(httpServer, RedisClient,socketMiddlewares=[], socketConnHandlers = [],socketDisconnHandlers=[]) {
+export async function initSocketIO(httpServer, RedisClient, socketMiddlewares = [], socketConnHandlers = [], socketDisconnHandlers = []) {
   const pubClient = RedisClient;
   const subClient = pubClient.duplicate();
 
@@ -27,7 +27,7 @@ export async function initSocketIO(httpServer, RedisClient,socketMiddlewares=[],
   // Redis adapter để scale socket
   io.adapter(createAdapter(pubClient, subClient));
 
-   for (const middleware of socketMiddlewares) {
+  for (const middleware of socketMiddlewares) {
     if (typeof middleware === "function") {
       io.use(async (socket, next) => {
         try {
@@ -50,13 +50,19 @@ export async function initSocketIO(httpServer, RedisClient,socketMiddlewares=[],
       }
     }
 
-    socket.on("disconnect", () => {
+    socket.on("disconnect", async () => {
+      
       console.log(`💨 [SOCKET] Disconnected: ${socket.id}`);
       for (const handler of socketDisconnHandlers) {
-      if (typeof handler === "function") {
-        handler(socket, io); // Truyền thêm io nếu cần emit toàn cục
+        if (typeof handler === "function") {
+          try {
+            await handler(socket, io); // Giả sử handler là async
+          } catch (err) {
+            console.error("❌ Disconnect handler error:", err);
+          }
+        }
       }
-    }
+
     });
   });
 

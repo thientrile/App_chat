@@ -10,7 +10,7 @@ if (!globalThis.crypto) {
 
 import { AuthFailureError, ForbiddenError } from "../response/error.js";
 import headers from "../context/header.js";
-import { getData } from "../redis/utils.js";
+import { getArray, getData } from "../redis/utils.js";
 import { keyRedisLogout } from "../cache/cache.js";
 import { tkn_checkKeyTokenVerify } from "../../internal/repository/key.repo.js";
 
@@ -47,8 +47,8 @@ const authertication = async (req, res, next) => {
     const userId = keyStore.tkn_userId.toString();
     if (userId !== decrypted.userId) throw new AuthFailureError("Token has expired");
 
-    const logout = await getData(keyRedisLogout(userId, decrypted.jit));
-    if (logout || keyStore.tkn_jit.includes(decrypted.jit)) {
+    const logout = await getArray(keyRedisLogout(userId));
+    if (logout.includes(decrypted.jit) || keyStore.tkn_jit.includes(decrypted.jit)) {
       throw new AuthFailureError("Token has expired");
     }
 

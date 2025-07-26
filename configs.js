@@ -30,7 +30,7 @@ const local = {
   },
 }
 
-const devlopment = {
+const development = {
   app: {
     name: process.env.APP_NAME || "APP_CHAT",
     version: process.env.VERSION || "1.0.0",
@@ -89,7 +89,7 @@ const production = {
     host: process.env.REDIS_HOST_PROD || "redis.railway.internal:6379",
   },
 };
-const config = { production, devlopment, local };
+const config = { production, development, local };
 const env = process.env.NODE_ENV || "local";
 console.log("NODE_ENV::: ", env);
 
