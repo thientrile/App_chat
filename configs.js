@@ -1,25 +1,25 @@
 const devlopment = {
   app: {
     name: process.env.APP_NAME || "APP_CHAT",
-    version: "1.0.0",
-    description: "This is a sample application configuration file.",
+    version: process.env.VERSION || "1.0.0",
+    description: process.env.DESCRIPTION || "This is a sample application configuration file.",
     port: process.env.PORT || 3001,
     host: process.env.HOST || "localhost",
   },
   mongodb: {
-    schema: "mongodb",
-    user: "mongo",
-    pass: "JbRhebwthEmdazawqbuhHoJPZujyzIMq",
-    host: "ballast.proxy.rlwy.net:15545",
-    database: "AppChat",
+    schema: process.env.DB_CONNECTION_DEV || "mongodb",
+    user: process.env.DB_USER_DEV || "mongo",
+    pass: process.env.DB_PASSWORD_DEV || "JbRhebwthEmdazawqbuhHoJPZujyzIMq",
+    host: process.env.DB_HOST_DEV || "ballast.proxy.rlwy.net:15545",
+    database: process.env.DB_NAME_DEV || "AppChat",
     options: {
       authSource: "admin",
     },
   },
    redis: {
-        user: "default",
-        pass: "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
-        host: "trolley.proxy.rlwy.net:31429",
+        user: process.env.REDIS_USER || "default",
+        pass: process.env.REDIS_PASSWORD || "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
+        host: process.env.REDIS_HOST || "trolley.proxy.rlwy.net:31429",
       },
   cloudinary: {
     cloud_name: "dcplqohwd",
@@ -31,17 +31,17 @@ const devlopment = {
 const production = {
   app: {
    name: process.env.APP_NAME || "APP_CHAT",
-    version: "1.0.0",
-    description: "This is a sample application configuration file.",
+    version: process.env.VERSION || "1.0.0",
+    description: process.env.DESCRIPTION || "This is a sample application configuration file.",
     port: process.env.PORT || 3000,
     host: process.env.HOST || "localhost",
   },
   mongodb: {
-    schema: "mongodb",
-    user: "mongo",
-    pass: "JbRhebwthEmdazawqbuhHoJPZujyzIMq",
-    host: "mongodb.railway.internal:27017",
-    database: "AppChat",
+    schema: process.env.DB_CONNECTION_PROD || "mongodb",
+    user: process.env.DB_USER_PROD || "mongo",
+    pass: process.env.DB_PASSWORD_PROD || "JbRhebwthEmdazawqbuhHoJPZujyzIMq",
+    host: process.env.DB_HOST_PROD || "mongodb.railway.internal:27017",
+    database: process.env.DB_NAME_PROD || "AppChat",
     options: {
       authSource: "admin",
     },
@@ -52,10 +52,9 @@ const production = {
     api_secret: "J_ohAUV8PvwaiqTlha3ho0YZ4u4",
   },
   redis: {
- 
-    user: "default",
-    pass: "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
-    host: "redis.railway.internal:6379",
+    user: process.env.REDIS_USER_PROD || "default",
+    pass: process.env.REDIS_PASSWORD_PROD || "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
+    host: process.env.REDIS_HOST_PROD || "redis.railway.internal:6379",
   },
 };
 const config = { production, devlopment };
