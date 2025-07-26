@@ -8,7 +8,9 @@ const schema = Joi.object({
 });
 
 
-
+/** * Schema for validating user registration input
+ * @type {Joi.ObjectSchema}
+ */
 const inputRegister = Joi.object({
   username: Joi.alternatives().try(
     Joi.string().email(),
@@ -16,8 +18,13 @@ const inputRegister = Joi.object({
   ).required(),
   password: Joi.string().min(6).max(30).required(),
   fullname: Joi.string().min(3).max(50).required(),
-
+  gender: Joi.string().valid('male', 'female', 'other').required()
 })
+
+/**
+ * Schema for validating user login input
+ * @type {Joi.ObjectSchema}
+ */
 const inputLogin = Joi.object({
   username: Joi.alternatives().try(
     Joi.string().email(),
@@ -26,12 +33,29 @@ const inputLogin = Joi.object({
   ).required(),
   password: Joi.string().required(),
 });
+
+/**
+ * Schema for validating FCM token input
+ * @type {Joi.ObjectSchema}
+ */
 const inputSetFcmToken = Joi.object({
   token: Joi.string().required(),
 }).required();
+
+/**
+ * Schema for validating friend request input
+ * @type {Joi.ObjectSchema}
+ */
+const inputSendFriendRequest = Joi.object({
+  user_receive: Joi.string().required(),
+  message: Joi.string().max(500).required()
+});
+
+
 export {
   inputSetFcmToken,
   schema,
   inputRegister,
-  inputLogin
+  inputLogin,
+  inputSendFriendRequest
 }

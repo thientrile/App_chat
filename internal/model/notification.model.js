@@ -31,7 +31,6 @@ const notificationSchema = new Schema({
     collection: Collections,
 });
 
-const notificationModel = model(Documents, notificationSchema);
 notificationSchema.index({ notif_user_receive: 1, notif_user_sender: 1, notif_type: 1 });
 
-export default notificationModel;
+export default model(Documents, notificationSchema);

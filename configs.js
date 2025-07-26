@@ -1,9 +1,41 @@
+
+
+const local = {
+  app: {
+    name: process.env.APP_NAME || "APP_CHAT",
+    version: process.env.VERSION || "1.0.0",
+    description: process.env.DESCRIPTION || "This is a sample application configuration file.",
+    port: process.env.PORT || 3000,
+    host: process.env.HOST || "localhost",
+  },
+  mongodb: {
+    schema: process.env.DB_CONNECTION || "mongodb",
+    user: process.env.DB_USER || "root",
+    pass: process.env.DB_PASSWORD || "123456",
+    host: process.env.DB_HOST || "localhost:27017",
+    database: process.env.DB_NAME || "AppChat",
+    options: {
+      authSource: "admin",
+    },
+  },
+  redis: {
+    user: process.env.REDIS_USER || "default",
+    pass: process.env.REDIS_PASSWORD || "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
+    host: process.env.REDIS_HOST || "trolley.proxy.rlwy.net:31429",
+  },
+  cloudinary: {
+    cloud_name: "dcplqohwd",
+    api_key: "945292861993721",
+    api_secret: "J_ohAUV8PvwaiqTlha3ho0YZ4u4",
+  },
+}
+
 const devlopment = {
   app: {
     name: process.env.APP_NAME || "APP_CHAT",
     version: process.env.VERSION || "1.0.0",
     description: process.env.DESCRIPTION || "This is a sample application configuration file.",
-    port: process.env.PORT || 3001,
+    port: process.env.PORT || 3000,
     host: process.env.HOST || "localhost",
   },
   mongodb: {
@@ -16,11 +48,11 @@ const devlopment = {
       authSource: "admin",
     },
   },
-   redis: {
-        user: process.env.REDIS_USER || "default",
-        pass: process.env.REDIS_PASSWORD || "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
-        host: process.env.REDIS_HOST || "trolley.proxy.rlwy.net:31429",
-      },
+  redis: {
+    user: process.env.REDIS_USER || "default",
+    pass: process.env.REDIS_PASSWORD || "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
+    host: process.env.REDIS_HOST || "trolley.proxy.rlwy.net:31429",
+  },
   cloudinary: {
     cloud_name: "dcplqohwd",
     api_key: "945292861993721",
@@ -30,7 +62,7 @@ const devlopment = {
 
 const production = {
   app: {
-   name: process.env.APP_NAME || "APP_CHAT",
+    name: process.env.APP_NAME || "APP_CHAT",
     version: process.env.VERSION || "1.0.0",
     description: process.env.DESCRIPTION || "This is a sample application configuration file.",
     port: process.env.PORT || 3000,
@@ -57,8 +89,8 @@ const production = {
     host: process.env.REDIS_HOST_PROD || "redis.railway.internal:6379",
   },
 };
-const config = { production, devlopment };
-const env = process.env.NODE_ENV || "devlopment";
+const config = { production, devlopment, local };
+const env = process.env.NODE_ENV || "local";
 console.log("NODE_ENV::: ", env);
 
 export default config[env];

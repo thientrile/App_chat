@@ -8,21 +8,22 @@ import { createTokenPair } from "../../../pkg/token/utils.js";
 import { adddJitToKeyToken, tkn_deleteOne } from "../../repository/key.repo.js";
 import { setData } from "../../../pkg/redis/utils.js";
 import { keyRedisLogout } from "../../../pkg/cache/cache.js";
+import notificationModel from "../../model/notification.model.js";
 
 
 
 const registerAccount = async (body) => {
   let data = {}
-  const { username, password, fullname } = body;
+  const { username, password, fullname, gender } = body;
   data.salt = await hash(password, 10);
   data.fullname = fullname;
-  data.avatar = `https://ui-avatars.com/api/?name=${fullname.replace(" ","-")}&background=random`
+  data.avatar = `https://ui-avatars.com/api/?name=${fullname.replace(" ", "-")}&background=random`
   if (isValidation.isEmail(username)) {
     data.email = username;
   } else if (isValidation.isPhoneNumber(username)) {
     data.phone = username;
   }
-  console.log(data);
+  data.gender = gender;
   const newUser = await userModel.create(addPrefixToKeys(data, "usr_")).catch((err) => {
     throw new ForbiddenError(
       getErrorMessageMongose(
@@ -38,8 +39,8 @@ const registerAccount = async (body) => {
     await userDeleteById(newUser._id);
     throw new AuthFailureError(" Unable to create account");
   }
-  return{
-    user: omitInfoData({ fields: ["salt","_id","status","slug","__v","createdAt","updatedAt"], object: user }),
+  return {
+    user: omitInfoData({ fields: ["salt", "_id", "status", "slug", "__v", "createdAt", "updatedAt"], object: user }),
     tokens
   };
 
@@ -48,11 +49,11 @@ const registerAccount = async (body) => {
 const loginAccount = async (payload) => {
   const { username, password } = payload;
   const user = await userFindByusername(username);
-  
+
   if (!user) {
     throw new Error("User not found");
   }
-  const infor= removePrefixFromKeys(user, "usr_");
+  const infor = removePrefixFromKeys(user, "usr_");
   const isPasswordValid = await compare(password, user.usr_salt);
   if (!isPasswordValid) {
     throw new Error("Invalid password");
@@ -61,17 +62,17 @@ const loginAccount = async (payload) => {
   if (!tokens) {
     throw new AuthFailureError("Unable to login");
   }
- return{
-   user: omitInfoData({ fields: ["salt","_id","status","slug","__v","createdAt","updatedAt"], object: infor }),
+  return {
+    user: omitInfoData({ fields: ["salt", "_id", "status", "slug", "__v", "createdAt", "updatedAt"], object: infor }),
     tokens
   };;
 
 }
 const refreshToken = async (decoded) => {
-    
+
   const [tokens] = await Promise.all([
     createTokenPair({ userId: decoded.userId, clientId: decoded.clientId }),
-    setData(keyRedisLogout(decoded.userId, decoded.jit),1),
+    setData(keyRedisLogout(decoded.userId, decoded.jit), 1),
     adddJitToKeyToken(decoded.clientId, decoded.jit),
   ]);
   if (!tokens) {
@@ -83,16 +84,34 @@ const refreshToken = async (decoded) => {
 }
 const logoutAccount = async (decoded) => {
   await Promise.all([
-    setData(keyRedisLogout(decoded.userId, decoded.jit),1),
+    setData(keyRedisLogout(decoded.userId, decoded.jit), 1),
     tkn_deleteOne({ tkn_userId: convertToObjectIdMongoose(decoded.userId), tkn_clientId: decoded.clientId })
   ])
 
   return true
 }
+
+
+
+const sendFriendRequestToStranger = async (body) => {
+  const { user_send, user_receive, message } = body;
+  const notification = await notificationModel.create({
+    notif_user_send: convertToObjectIdMongoose(user_send),
+    notif_user_receive: convertToObjectIdMongoose(user_receive),
+    notif_type: "friend_request",
+    notif_message: message,
+    notif_status: "waiting"
+  });
+  if (!notification) {
+    throw new Error("Unable to send friend request");
+  }
+  return { notification: removePrefixFromKeys(notification.toObject(), "notif_") };
+}
+
 export {
   registerAccount,
   loginAccount,
   refreshToken,
-  logoutAccount
-
+  logoutAccount,
+  sendFriendRequestToStranger
 }
