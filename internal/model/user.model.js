@@ -20,12 +20,14 @@ const userSchema = new Schema({
         type: String,
         // required: true,
         unique: true,
-        sparse: true
+        sparse: true,
+        default: null,
     },
     usr_phone: {
         type: String,
         unique: [true, 'Phone number already exists'],
-        sparse: true
+        sparse: true,
+        default: null
     },
     usr_salt: {
         type: String,
