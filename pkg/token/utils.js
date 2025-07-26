@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { v4 as uuidv4 } from "uuid";
 import { EncryptJWT, importSPKI } from "jose";
 import { randomUUID } from "node:crypto";
 const createTokenPair = async (payload) => {
