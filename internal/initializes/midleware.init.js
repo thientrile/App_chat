@@ -11,7 +11,12 @@ const InitMiddle = (app) => {
   app.use(compression());
   app.use(express.json()); // for parsing application/json
   app.use(express.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
-
+  app.use(cors(
+    {
+      origin: ['http://10.0.2.2:8081'], // Expo Go, Android emulator
+      credentials: true // nếu có dùng cookie/token
+    }
+  ));
 };
 
 export default InitMiddle;
