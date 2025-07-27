@@ -7,7 +7,6 @@ import { setFcmToken } from "../../service/Account/key.service.js";
 
 
 const LoginAccount= async (req, res) => {
-
     new SuccessReponse({
         message: "Login successfully",
         metadata: await loginAccount(req.body)
