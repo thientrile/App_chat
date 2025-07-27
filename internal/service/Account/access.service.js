@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import { addPrefixToKeys, convertToObjectIdMongoose, isValidation, omitInfoData, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
+import { addPrefixToKeys, convertToObjectIdMongoose, isValidation, omitInfoData,randomId, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import userModel from "../../model/user.model.js";
 import { createKeyToken } from "./key.service.js";
 import { AuthFailureError, ForbiddenError, getErrorMessageMongose } from "../../../pkg/response/error.js";
@@ -9,7 +9,6 @@ import { adddJitToKeyToken, tkn_deleteOne } from "../../repository/key.repo.js";
 import { pushToArray, setData } from "../../../pkg/redis/utils.js";
 import { keyRedisLogout } from "../../../pkg/cache/cache.js";
 import notificationModel from "../../model/notification.model.js";
-
 
 
 const registerAccount = async (body) => {

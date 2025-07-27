@@ -5,7 +5,7 @@ const local = {
     name: process.env.APP_NAME || "APP_CHAT",
     version: process.env.VERSION || "1.0.0",
     description: process.env.DESCRIPTION || "This is a sample application configuration file.",
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 3089,
     host: process.env.HOST || "localhost",
   },
   mongodb: {
@@ -19,9 +19,9 @@ const local = {
     },
   },
   redis: {
-    user: process.env.REDIS_USER || "default",
-    pass: process.env.REDIS_PASSWORD || "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
-    host: process.env.REDIS_HOST || "trolley.proxy.rlwy.net:31429",
+    // user: process.env.REDIS_USER || "default",
+    // pass: process.env.REDIS_PASSWORD || "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
+    host: process.env.REDIS_HOST || "localhost:6379",
   },
   cloudinary: {
     cloud_name: "dcplqohwd",
@@ -49,9 +49,9 @@ const development = {
     },
   },
   redis: {
-    user: process.env.REDIS_USER || "default",
-    pass: process.env.REDIS_PASSWORD || "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
-    host: process.env.REDIS_HOST || "trolley.proxy.rlwy.net:31429",
+    user:"default",
+    pass: "dKEsVLHmGmAWnyDlNoyMnYBtPDJhTfos",
+    host:  "trolley.proxy.rlwy.net:31429",
   },
   cloudinary: {
     cloud_name: "dcplqohwd",
