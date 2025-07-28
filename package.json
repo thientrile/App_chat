@@ -7,9 +7,8 @@
     "node": ">=20.0.0"
   },
   "scripts": {
-    "start": "node ./cmd/server/server.js",
-    "watch": "node --watch ./cmd/server/server.js",
-    "dev": "node --watch ./cmd/server/server.js",
+    "start": "node .",
+    "dev": "node --watch .",
     "ngrok": "ngrok start --config=./ngrok.yml --all"
   },
   "keywords": [],

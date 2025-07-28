@@ -1,98 +1,225 @@
-# APP_CHAT
+# 💬 APP CHAT
 
-🚀 **Ứng dụng Chat Real-time** được xây dựng với Node.js, Express, MongoDB, Redis và Socket.IO
+<div align="center">
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white" alt="Socket.IO" />
+</div>
 
-## 📋 Mục lục
+<div align="center">
+  <h3>🚀 Real-time Chat Application</h3>
+  <p>Modern chat application built with Node.js, Express, MongoDB, Redis, and Socket.IO</p>
+</div>
 
-- [Tổng quan](#tổng-quan)
-- [Tính năng](#tính-năng)
-- [Cấu trúc dự án](#cấu-trúc-dự-án)
-- [Cài đặt](#cài-đặt)
-- [Cấu hình](#cấu-hình)
-- [Chạy ứng dụng](#chạy-ứng-dụng)
-- [API Documentation](#api-documentation)
-- [Scripts](#scripts)
-- [Cấu trúc thư mục](#cấu-trúc-thư-mục)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+---
 
-## 🎯 Tổng quan
+## 📋 Table of Contents
 
-APP_CHAT là một ứng dụng chat real-time hiện đại được xây dựng với:
+- [🎯 Overview](#-overview)
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📦 Installation](#-installation)
+- [⚙️ Configuration](#️-configuration)
+- [🚀 Getting Started](#-getting-started)
+- [🌐 Ngrok Setup](#-ngrok-setup)
+- [📡 API Documentation](#-api-documentation)
+- [🏗️ Project Structure](#️-project-structure)
+- [🔒 Security](#-security)
+- [🚀 Deployment](#-deployment)
+- [🧪 Testing](#-testing)
+- [🤝 Contributing](#-contributing)
 
-- **Backend**: Node.js + Express.js
-- **Database**: MongoDB (với Mongoose ODM)
-- **Cache/Session**: Redis
-- **Real-time**: Socket.IO
-- **File Upload**: Cloudinary
-- **Logging**: Winston
-- **Validation**: Joi
-- **Security**: Helmet, CORS
+# 💬 APP CHAT
 
-## ✨ Tính năng
+<div align="center">
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express.js" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socket.io&logoColor=white" alt="Socket.IO" />
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
+</div>
 
-- 💬 Chat real-time với Socket.IO
-- 👥 Quản lý người dùng và phòng chat
-- 📁 Upload và chia sẻ file (hình ảnh, video)
-- 🔐 Xác thực và phân quyền
-- 📊 Logging và monitoring hệ thống
-- 🚀 Caching với Redis
-- 📱 API RESTful đầy đủ
-- 🛡️ Bảo mật tốt với Helmet và CORS
+<div align="center">
+  <h3>🚀 Enterprise-Grade Real-time Chat Application</h3>
+  <p>Production-ready chat platform with advanced messaging, friendship system, and push notifications</p>
+</div>
 
-## 🏗️ Cấu trúc dự án
+---
 
-```
-App_chat/
-├── cmd/                    # Commands và entry points
-│   ├── alias/             # Alias commands
-│   └── server/            # Server startup
-├── configs/               # Configuration files
-├── global/                # Global configurations
-├── internal/              # Core application logic
-│   ├── controller/        # Request controllers
-│   ├── model/            # Database models
-│   ├── router/           # Route definitions
-│   └── service/          # Business logic
-├── pkg/                   # Reusable packages
-│   ├── utils/            # Utility functions
-│   ├── logger/           # Logging system
-│   ├── mongodb/          # MongoDB connection
-│   ├── redis/            # Redis connection
-│   └── cloudinary/       # File upload service
-└── storage/               # File storage
-    ├── assets/           # Static assets
-    └── logs/             # Application logs
-```
+## 📋 Table of Contents
 
-## ⚙️ Cài đặt
+- [🎯 Overview](#-overview)
+- [✨ Features](#-features)
+- [🛠️ Tech Stack](#️-tech-stack)
+- [📦 Installation](#-installation)
+- [⚙️ Configuration](#️-configuration)
+- [🚀 Getting Started](#-getting-started)
+- [🌐 Ngrok Setup](#-ngrok-setup)
+- [📡 API Documentation](#-api-documentation)
+- [🏗️ Project Structure](#️-project-structure)
+- [🔒 Security](#-security)
+- [🚀 Deployment](#-deployment)
+- [🧪 Testing](#-testing)
+- [🤝 Contributing](#-contributing)
 
-### 1. Clone repository
+## 🎯 Overview
+
+**APP_CHAT** is a comprehensive, production-ready real-time chat application built with modern technologies and enterprise-grade architecture. The system provides a complete messaging platform with advanced features including friendship management, push notifications, file sharing, and real-time communication.
+
+### 🌟 **Key Highlights:**
+
+- **🔄 Real-time Communication**: Instant messaging with Socket.IO and Redis clustering
+- **👥 Social Features**: Complete friendship system with requests, acceptance, and blocking
+- **🔐 Enterprise Security**: JWT-based authentication with refresh tokens and role-based access
+- **📱 Push Notifications**: Firebase Cloud Messaging integration for mobile alerts
+- **📁 Media Sharing**: Secure file upload and sharing with multiple format support
+- **🚀 High Performance**: Redis caching and connection pooling for optimal speed
+- **📊 Comprehensive Logging**: Enterprise-grade logging with Winston and request tracking
+- **🛡️ Production Security**: Advanced security measures with rate limiting and input validation
+
+### 🏢 **Architecture:**
+
+Built following **Clean Architecture** principles with clear separation of concerns:
+- **Domain Layer**: Core business logic and entities
+- **Application Layer**: Use cases and business rules
+- **Infrastructure Layer**: External services and data persistence
+- **Presentation Layer**: API endpoints and real-time communication
+
+### 🎯 **Target Use Cases:**
+
+- **Team Communication**: Internal messaging for organizations
+- **Customer Support**: Real-time customer service platforms  
+- **Social Applications**: Community chat and discussion platforms
+- **Educational Systems**: Online learning and collaboration
+- **Gaming Platforms**: In-game chat and communication
+
+## ✨ Features
+
+### 💬 **Core Messaging**
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Real-time Chat** | ✅ | Instant messaging with Socket.IO and Redis clustering |
+| **Message Types** | ✅ | Text, images, videos, and file attachments |
+| **Chat Rooms** | ✅ | Group and private conversations |
+| **Message History** | ✅ | Persistent message storage and retrieval |
+| **Typing Indicators** | ✅ | Real-time typing status updates |
+| **Message Status** | ✅ | Delivery and read receipts |
+
+### 👥 **Social & User Management**
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **User Registration** | ✅ | Email/phone registration with validation |
+| **Friendship System** | ✅ | Friend requests, acceptance, rejection, blocking |
+| **User Profiles** | ✅ | Complete profile management with avatars |
+| **User Search** | ✅ | Find and connect with other users |
+| **Online Status** | ✅ | Real-time user presence tracking |
+
+### 🔐 **Security & Authentication**
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **JWT Authentication** | ✅ | Secure token-based authentication |
+| **Refresh Tokens** | ✅ | Automatic token renewal system |
+| **Role-based Access** | ✅ | Admin and member permissions |
+| **Rate Limiting** | ✅ | API abuse prevention |
+| **Input Validation** | ✅ | Comprehensive data validation |
+
+### 📱 **Notifications & Push**
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Push Notifications** | ✅ | Firebase Cloud Messaging integration |
+| **Real-time Alerts** | ✅ | Instant notification system |
+| **Notification Types** | ✅ | Friend requests, messages, system alerts |
+| **FCM Token Management** | ✅ | Device token registration and updates |
+
+### 🛠️ **Technical Features**
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Redis Caching** | ✅ | High-performance data caching |
+| **File Upload** | ✅ | Secure media upload and storage |
+| **Logging System** | ✅ | Comprehensive request and error logging |
+| **Health Monitoring** | ✅ | System health checks and metrics |
+| **Ngrok Integration** | ✅ | Easy public tunnel for development |
+
+## 🛠️ Tech Stack
+
+### 🎯 **Core Backend**
+- **Runtime**: Node.js 20+ (ES Modules)
+- **Framework**: Express.js 5 (Latest)
+- **Database**: MongoDB with Mongoose ODM
+- **Cache**: Redis 5+ with clustering support
+- **Real-time**: Socket.IO 4 with Redis adapter
+
+### 🔐 **Authentication & Security**
+- **JWT**: Jose library for modern JWT handling
+- **Password**: bcrypt with configurable salt rounds
+- **Security Headers**: Helmet.js
+- **CORS**: Configurable cross-origin resource sharing
+- **Validation**: Joi schemas for input validation
+- **Rate Limiting**: Express-based request limiting
+
+### 📱 **Notifications & Media**
+- **Push Notifications**: Firebase Admin SDK
+- **File Upload**: Multer with validation
+- **Media Storage**: Configurable storage backends
+- **Cloud Services**: Firebase Cloud Messaging
+
+### 📊 **Logging & Monitoring**
+- **Logging**: Winston with daily rotation
+- **Request Tracking**: Morgan HTTP request logger
+- **Error Handling**: Centralized error management
+- **Health Checks**: Built-in system monitoring
+
+### 🛠️ **Development & DevOps**
+- **Environment**: dotenv configuration
+- **Development**: Node.js --watch mode
+- **Tunneling**: Ngrok integration
+- **Package Manager**: npm with modern dependencies
+- **Code Style**: ES6+ modules and modern JavaScript
+
+### 🔧 **Utilities & Libraries**
+- **UUID**: Modern UUID generation
+- **Lodash**: Utility functions
+- **Compression**: Response compression
+- **Access Control**: Role-based permissions
+- **Crypto**: Built-in cryptographic functions
+
+## 📦 Installation
+
+### Prerequisites
+
+Ensure you have the following installed:
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [MongoDB](https://www.mongodb.com/) (local or cloud)
+- [Redis](https://redis.io/) (local or cloud)
+- [Git](https://git-scm.com/)
+
+### Quick Start
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/thientrile/App_chat.git
 cd App_chat
-```
 
-### 2. Cài đặt dependencies
-
-```bash
+# 2. Install dependencies
 npm install
+
+# 3. Create environment file
+cp .env.example .env
+
+# 4. Configure your environment variables (see Configuration section)
+
+# 5. Start the application
+npm run dev
 ```
 
-### 3. Cài đặt services cần thiết
+## ⚙️ Configuration
 
-Đảm bảo bạn đã cài đặt và chạy:
+### Environment Variables
 
-- **MongoDB** (local hoặc cloud)
-- **Redis** (local hoặc cloud)
-- **Node.js** (version 18 trở lên)
-
-## 🔧 Cấu hình
-
-### 1. Environment Variables
-
-Tạo file `.env` trong thư mục root:
+Create a `.env` file in the root directory:
 
 ```env
 # Application
@@ -100,585 +227,334 @@ NODE_ENV=development
 PORT=3000
 APP_NAME=APP_CHAT
 
-# MongoDB
-MONGODB_URI=mongodb://username:password@host:port/database
+# Database
+MONGODB_URI=mongodb://localhost:27017/app_chat
 MONGODB_DATABASE=AppChat
 
 # Redis
 REDIS_HOST=localhost
 REDIS_PORT=6379
-REDIS_PASSWORD=your_redis_password
+REDIS_PASSWORD=
 
-# Cloudinary
+# Cloudinary (for file uploads)
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
-# JWT (nếu có)
-JWT_SECRET=your_jwt_secret
+# JWT
+JWT_SECRET=your-super-secret-jwt-key
 JWT_EXPIRES_IN=7d
 
 # Logging
 LOG_LEVEL=info
 ```
 
-### 2. Database Configuration
+### Database Configuration
 
-Cập nhật file `configs/local.js` với thông tin database của bạn:
+Update `configs/local.js` with your database credentials:
 
 ```javascript
 const development = {
   app: {
     name: "APP_CHAT",
     version: "1.0.0",
-    port: 3000,
+    port: process.env.PORT || 3000,
     host: "localhost",
   },
   mongodb: {
-    schema: "mongodb",
-    user: "your_username",
-    pass: "your_password",
-    host: "your_host:port",
-    database: "AppChat",
-    options: {
-      authSource: "admin",
-    },
+    uri: process.env.MONGODB_URI || "mongodb://localhost:27017/app_chat"
   },
   redis: {
-    user: "default",
-    pass: "your_redis_password",
-    host: "your_redis_host:port",
-  },
-  cloudinary: {
-    cloud_name: "your_cloud_name",
-    api_key: "your_api_key",
-    api_secret: "your_api_secret",
-  },
+    host: process.env.REDIS_HOST || "localhost",
+    port: process.env.REDIS_PORT || 6379,
+    password: process.env.REDIS_PASSWORD || ""
+  }
 };
 ```
 
-## 🚀 Chạy ứng dụng
+## 🚀 Getting Started
 
 ### Development Mode
 
 ```bash
-# Chạy với auto-reload (recommended cho development)
+# Start with auto-reload (recommended)
 npm run dev
 
-# Hoặc chạy với watch mode
+# Alternative: watch mode
 npm run watch
 ```
 
 ### Production Mode
 
 ```bash
-# Chạy production build
+# Start production server
 npm start
 ```
 
-### 🌐 Chạy với Ngrok (Public Tunnel)
+### Available Scripts
 
-Ngrok cho phép bạn tạo public URL cho local server để:
-- ✅ Test trên mobile devices
-- ✅ Share với team members  
-- ✅ Demo cho clients
-- ✅ Test webhooks từ external services
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start production server |
+| `npm run dev` | Start development server with auto-reload |
+| `npm run watch` | Start server with file watching |
+| `npm run ngrok` | Start ngrok tunnel |
 
----
+## 🌐 Ngrok Setup
 
-#### **Bước 1: Chuẩn bị Ngrok**
+Expose your local server to the internet for testing on mobile devices or sharing with team members.
 
-**1.1. Cài đặt Ngrok**
+### Quick Setup
 
-```bash
-# Option 1: Global install
-npm install -g ngrok
+1. **Install Ngrok**
+   ```bash
+   # Global installation
+   npm install -g ngrok
+   
+   # Or download from https://ngrok.com/download
+   ```
 
-# Option 2: Download binary (Windows/macOS/Linux)
-# Truy cập: https://ngrok.com/download
-```
+2. **Get Auth Token**
+   - Sign up at [ngrok.com](https://ngrok.com/signup)
+   - Copy your authtoken from the dashboard
+   - Configure: `ngrok config add-authtoken YOUR_TOKEN`
 
-**1.2. Tạo tài khoản và lấy Auth Token**
+3. **Start Tunnel**
+   ```bash
+   # Method 1: Using built-in script (recommended)
+   npm run dev          # Terminal 1
+   node cmd/ngrok/index.js  # Terminal 2
+   
+   # Method 2: Direct ngrok
+   ngrok http 3000
+   
+   # Method 3: Using config file
+   ngrok start sisa-backend
+   ```
 
-1. Đăng ký miễn phí tại: [https://ngrok.com/signup](https://ngrok.com/signup)
-2. Vào Dashboard → Auth → Copy your Authtoken
-3. Cấu hình token:
-
-```bash
-ngrok config add-authtoken YOUR_AUTH_TOKEN_HERE
-```
-
----
-
-#### **Bước 2: Chạy ứng dụng**
-
-**2.1. Khởi động server local**
-
-```bash
-# Terminal 1: Chạy server
-npm run dev
-# Server sẽ chạy tại http://localhost:3000
-```
-
-**2.2. Chạy Ngrok (chọn 1 trong 3 cách)**
-
-**🔥 Cách 1: Sử dụng script tự động (Khuyến nghị)**
+### Expected Output
 
 ```bash
-# Terminal 2: Chạy script ngrok có sẵn
-node cmd/ngrok/index.js
-```
-
-Script này sẽ:
-- Tự động tạo tunnel
-- Ghi URL vào file `.env`
-- Hiển thị thông tin chi tiết
-
-**⚡ Cách 2: Chạy ngrok trực tiếp**
-
-```bash
-# Terminal 2: Ngrok manual
-ngrok http 3000
-```
-
-**🎯 Cách 3: Sử dụng config file**
-
-```bash
-# Terminal 2: Dùng config có sẵn
-ngrok start sisa-backend
-```
-
----
-
-#### **Bước 3: Kết quả và Testing**
-
-**3.1. Output mong đợi**
-
-```bash
-🔗 Ngrok tunnel opened at: https://abc123-def456.ngrok-free.app
+🔗 Ngrok tunnel: https://abc123.ngrok-free.app
 ✅ API_URL written to .env
-📊 Ngrok dashboard: http://127.0.0.1:4040
-```
-
-**3.2. Test API endpoints**
-
-```bash
-# Health check
-curl https://abc123-def456.ngrok-free.app/health-check
-
-# Test API
-curl https://abc123-def456.ngrok-free.app/api/users
-
-# WebSocket test (nếu có frontend)
-# Kết nối Socket.IO tới ngrok URL
-```
-
----
-
-#### **Bước 4: Cấu hình Frontend/Mobile**
-
-**4.1. Environment Variables**
-
-File `.env` được tự động cập nhật:
-
-```env
-# Được script tự động thêm
-API_URL=https://abc123-def456.ngrok-free.app
-
-# Sử dụng trong frontend
-REACT_APP_API_URL=https://abc123-def456.ngrok-free.app
-EXPO_PUBLIC_API_URL=https://abc123-def456.ngrok-free.app
-```
-
-**4.2. Frontend code example**
-
-```javascript
-// React/React Native
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:3000';
-
-// Expo
-const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
-
-// Fetch API
-fetch(`${API_BASE}/api/users`)
-  .then(res => res.json())
-  .then(data => console.log(data));
-```
-
----
-
-#### **Bước 5: Monitoring & Debug**
-
-**5.1. Ngrok Web Dashboard**
-
-Truy cập: [http://127.0.0.1:4040](http://127.0.0.1:4040)
-
-Xem được:
-- 📊 Request/Response logs
-- 📈 Traffic statistics
-- 🐛 Error details
-- ⏱️ Response times
-
-**5.2. Advanced Options**
-
-```bash
-# Custom subdomain (Pro plan required)
-ngrok http 3000 --subdomain=my-chat-app
-
-# Basic authentication
-ngrok http 3000 --basic-auth="username:password"
-
-# Custom domain (Business plan)
-ngrok http 3000 --hostname=api.mycompany.com
-
-# Specific region
-ngrok http 3000 --region=ap  # Asia Pacific
-```
-
----
-
-#### **Bước 6: Troubleshooting**
-
-**6.1. Lỗi thường gặp**
-
-| Lỗi | Nguyên nhân | Giải pháp |
-|-----|-------------|-----------|
-| `tunnel not found` | Config sai hoặc token expired | `ngrok config check` → `ngrok authtoken YOUR_TOKEN` |
-| `failed to start tunnel` | Port đã được sử dụng | Đổi port hoặc kill process: `lsof -ti:3000 \| xargs kill -9` |
-| `too many connections` | Vượt limit free plan | Upgrade plan hoặc giảm số request |
-| `CORS error` | Frontend không được phép | Thêm ngrok domain vào CORS config |
-
-**6.2. Debugging commands**
-
-```bash
-# Kiểm tra status
-ngrok --version
-ngrok config check
-
-# Restart ngrok
-ngrok kill
-ngrok http 3000
-
-# Xem logs chi tiết
-ngrok http 3000 --log=stdout --log-level=debug
-```
-
-**6.3. CORS Configuration**
-
-```javascript
-// Trong server code (app.js hoặc server.js)
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:8080',
-    'https://*.ngrok-free.app',    // Cho phép tất cả ngrok domains
-    'https://*.ngrok.io'           // Legacy domains
-  ],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
-}));
-```
-
----
-
-#### **📋 Quick Reference**
-
-```bash
-# 🚀 Quick Start (All-in-one)
-npm run dev                    # Terminal 1
-node cmd/ngrok/index.js        # Terminal 2
-
-# 📊 Useful URLs
-http://localhost:3000          # Local server
-http://127.0.0.1:4040          # Ngrok dashboard
-https://dashboard.ngrok.com    # Ngrok account dashboard
-
-# 🛠️ Useful commands
-ngrok http 3000               # Basic tunnel
-ngrok kill                    # Stop all tunnels
-ngrok --help                  # Show help
-```
-
-## 📡 API Documentation
+📊 Dashboard: http://127.0.0.1:4040
 ```
 
 ## 📡 API Documentation
 
 ### Base URL
 ```
-http://localhost:3000
+Local:  http://localhost:3000
+Ngrok:  https://your-subdomain.ngrok-free.app
+```
+
+### Authentication Endpoints
+
+```http
+POST   /api/auth/register        # User registration
+POST   /api/auth/login           # User login  
+PATCH  /api/auth/refresh-token   # Refresh JWT token
+DELETE /api/auth/logout          # User logout
+PATCH  /api/auth/set-fcm-token   # Set Firebase token
+```
+
+### Chat Endpoints
+
+```http
+GET    /api/chat/rooms           # Get user's chat rooms
+POST   /api/chat/rooms           # Create new chat room
+GET    /api/chat/rooms/:id       # Get room details
+POST   /api/chat/rooms/:id/join  # Join a chat room
+GET    /api/chat/rooms/:id/messages  # Get room messages
+POST   /api/chat/rooms/:id/messages # Send message
+```
+
+### User Endpoints
+
+```http
+GET    /api/users/profile        # Get user profile
+PUT    /api/users/profile        # Update user profile
+GET    /api/users/search         # Search users
+```
+
+### File Upload
+
+```http
+POST   /api/upload/image         # Upload image
+POST   /api/upload/video         # Upload video
+POST   /api/upload/document      # Upload document
 ```
 
 ### Health Check
-```http
-GET /health
-```
-
-### Endpoints chính
 
 ```http
-# Authentication
-POST /api/auth/register
-POST /api/auth/login
-POST /api/auth/logout
-
-# Chat
-GET /api/chat/rooms
-POST /api/chat/rooms
-GET /api/chat/rooms/:id/messages
-POST /api/chat/rooms/:id/messages
-
-# User
-GET /api/users/profile
-PUT /api/users/profile
-GET /api/users/:id
-
-# File Upload
-POST /api/upload/image
-POST /api/upload/file
+GET    /health-check             # Application health status
 ```
 
 ### Socket.IO Events
 
+#### Client → Server
 ```javascript
-// Client events
+// Join a room
 socket.emit('join_room', { roomId: 'room123' });
-socket.emit('send_message', { roomId: 'room123', message: 'Hello!' });
+
+// Send message
+socket.emit('send_message', { 
+  roomId: 'room123', 
+  message: 'Hello!',
+  type: 'text' // text, image, file
+});
+
+// Typing indicator
 socket.emit('typing', { roomId: 'room123', isTyping: true });
 
-// Server events
-socket.on('message_received', (data) => {});
-socket.on('user_joined', (data) => {});
-socket.on('user_left', (data) => {});
-socket.on('typing_status', (data) => {});
+// Leave room
+socket.emit('leave_room', { roomId: 'room123' });
 ```
 
-## 📝 Scripts Chi tiết
+#### Server → Client
+```javascript
+// New message received
+socket.on('message_received', (data) => {
+  // { messageId, roomId, senderId, content, timestamp }
+});
 
-| Script | Mô tả |
-|--------|-------|
-| `npm start` | Chạy server production mode |
-| `npm run watch` | Chạy server với auto-reload |
-| `npm run dev` | Chạy development mode |
-| `npm run ngrok` | Chạy ngrok với config file |
+// User joined room
+socket.on('user_joined', (data) => {
+  // { userId, username, roomId }
+});
 
-## 🗂️ Cấu trúc thư mục chi tiết
+// User left room
+socket.on('user_left', (data) => {
+  // { userId, roomId }
+});
 
-### `/cmd/` - Commands
-- `server/server.js`: Main server entry point
-- `ngrok/`: Ngrok tunnel management
-
-### `/internal/` - Core Logic
-- `controller/`: Request handlers
-- `model/`: Database models (Mongoose)
-- `router/`: Express routes
-- `service/`: Business logic layer
-- `initializes/`: App initialization modules
-
-### `/pkg/` - Packages
-- `utils/`: Utility functions ([Xem README](./pkg/utils/README.md))
-- `logger/`: Logging system với Winston
-- `mongodb/`: Database connection và utilities
-- `redis/`: Cache và session management
-- `cloudinary/`: File upload service
-
-### `/storage/` - Storage
-- `assets/`: Static files
-- `logs/`: Application logs (auto-rotation)
-
-## 🐛 Troubleshooting
-
-### Lỗi thường gặp
-
-#### 1. Connection refused (MongoDB)
-```bash
-# Kiểm tra MongoDB đang chạy
-sudo systemctl status mongod
-
-# Hoặc với Docker
-docker ps | grep mongo
+// Typing status
+socket.on('typing_status', (data) => {
+  // { userId, roomId, isTyping }
+});
 ```
 
-#### 2. Redis connection error
-```bash
-# Kiểm tra Redis
-redis-cli ping
+## 🏗️ Project Structure
 
-# Với Docker
-docker ps | grep redis
+```
+📁 App_chat/
+├── 📁 cmd/                     # Application commands
+│   ├── 📁 ngrok/              # Ngrok tunnel utilities
+│   └── 📁 server/             # Server startup
+├── 📁 configs/                # Configuration files
+├── 📁 global/                 # Global configurations
+├── 📁 internal/               # Core application logic
+│   ├── 📁 controller/         # HTTP request handlers
+│   ├── 📁 model/             # Database models (Mongoose)
+│   ├── 📁 repository/        # Data access layer
+│   ├── 📁 router/            # Express route definitions
+│   ├── 📁 service/           # Business logic layer
+│   ├── 📁 validation/        # Input validation schemas
+│   └── 📁 initializes/       # App initialization modules
+├── 📁 pkg/                   # Reusable packages
+│   ├── 📁 async/             # Async utilities
+│   ├── 📁 cloudinary/        # File upload service
+│   ├── 📁 logger/            # Logging system
+│   ├── 📁 mongodb/           # Database connection
+│   ├── 📁 redis/             # Cache utilities
+│   ├── 📁 response/          # Response formatters
+│   ├── 📁 token/             # JWT authentication
+│   ├── 📁 utils/             # General utilities
+│   └── 📁 validation/        # Validation middleware
+├── 📁 storage/               # File storage
+│   ├── 📁 assets/            # Static assets
+│   └── 📁 logs/              # Application logs
+├── 📁 test/                  # Test files
+├── 📄 package.json           # Dependencies and scripts
+├── 📄 ngrok.yml              # Ngrok configuration
+└── 📄 railway.json           # Railway deployment config
 ```
 
-#### 3. Port already in use
-```bash
-# Tìm process đang sử dụng port 3000
-lsof -i :3000
+### Key Directories
 
-# Kill process
-kill -9 <PID>
-```
-
-#### 4. Module not found
-```bash
-# Clear cache và reinstall
-rm -rf node_modules package-lock.json
-npm install
-```
-
-### Logs và Debugging
-
-#### Xem logs
-```bash
-# Logs theo ngày
-tail -f storage/logs/$(date +%Y-%m-%d-%H)/application-$(date +%Y-%m-%d-%H).info.log
-
-# Error logs
-tail -f storage/logs/$(date +%Y-%m-%d-%H)/application-$(date +%Y-%m-%d-%H).error.log
-```
-
-#### Debug mode
-```bash
-# Chạy với debug
-DEBUG=* npm run dev
-
-# Hoặc chỉ app logs
-DEBUG=app:* npm run dev
-```
+- **`/internal/`**: Core business logic following clean architecture
+- **`/pkg/`**: Reusable packages and utilities
+- **`/storage/`**: File storage and logs
+- **`/configs/`**: Environment-specific configurations
 
 ## 🔒 Security
 
-### Các biện pháp bảo mật đã implement:
+### Implemented Security Measures
 
-- **Helmet**: Security headers
-- **CORS**: Cross-origin resource sharing
-- **Rate Limiting**: API rate limiting
-- **Input Validation**: Joi validation
-- **Error Handling**: Secure error responses
-- **File Upload**: Cloudinary secure upload
+| Security Feature | Implementation | Status |
+|------------------|----------------|--------|
+| **Authentication** | JWT with refresh tokens | ✅ |
+| **Password Hashing** | bcrypt with salt rounds | ✅ |
+| **CORS** | Configurable origins | ✅ |
+| **Helmet** | Security headers | ✅ |
+| **Input Validation** | Joi schemas | ✅ |
+| **Rate Limiting** | Express middleware | ✅ |
+| **Error Handling** | Custom error responses | ✅ |
+| **File Upload** | Cloudinary secure upload | ✅ |
 
-### Best Practices:
+### Security Best Practices
 
-1. **Environment Variables**: Không commit sensitive data
-2. **Input Sanitization**: Validate tất cả input
-3. **Authentication**: Sử dụng JWT tokens
-4. **HTTPS**: Sử dụng HTTPS trong production
-5. **Database**: Sử dụng MongoDB Atlas với encryption
+```javascript
+// CORS Configuration
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://*.ngrok-free.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
+}));
+
+// Rate Limiting
+app.use('/api/', rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+}));
+```
 
 ## 🚀 Deployment
 
-### Railway Deployment
+### Railway (Recommended)
 
-Dự án đã được cấu hình để deploy trên Railway với file `railway.json`.
-
-#### 1. Chuẩn bị Deploy
-
-```bash
-# Đảm bảo tất cả dependencies được cài đặt
-npm install
-
-# Test local trước khi deploy
-npm start
-```
-
-#### 2. Environment Variables trên Railway
-
-Trong Railway Dashboard, thêm các environment variables:
-
-```env
-NODE_ENV=production
-PORT=3000
-
-# Database
-MONGODB_URI=your_production_mongodb_uri
-MONGODB_DATABASE=AppChat
-
-# Redis
-REDIS_HOST=your_redis_host
-REDIS_PORT=6379
-REDIS_PASSWORD=your_redis_password
-
-# Cloudinary
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
-```
-
-#### 3. Troubleshooting Railway Deployment
-
-**Service Unavailable Error:**
-
-1. **Kiểm tra Health Check**
-   ```javascript
-   // Đảm bảo endpoint /health-check tồn tại
-   app.get('/health-check', (req, res) => {
-     res.status(200).json({ 
-       status: 'OK', 
-       timestamp: new Date().toISOString(),
-       service: 'APP_CHAT'
-     });
-   });
-   ```
-
-2. **Kiểm tra Port Configuration**
-   ```javascript
-   // Server phải listen trên PORT từ environment
-   const port = process.env.PORT || 3000;
-   ```
-
-3. **Database Connection Issues**
-   - Verify MongoDB connection string
-   - Check Redis connection
-   - Ensure network access
-
-4. **Build Issues**
+1. **Prepare for deployment**
    ```bash
-   # Local test
-   npm run start
-   
-   # Check logs
-   railway logs
+   npm install
+   npm start  # Test locally
    ```
 
-#### 4. Railway Configuration Tối ưu
+2. **Environment Variables on Railway**
+   ```env
+   NODE_ENV=production
+   PORT=3000
+   MONGODB_URI=your_production_mongodb_uri
+   REDIS_HOST=your_redis_host
+   CLOUDINARY_CLOUD_NAME=your_cloud_name
+   # ... other env vars
+   ```
 
-Cập nhật `railway.json`:
+3. **Railway Configuration** (`railway.json`)
+   ```json
+   {
+     "build": { "builder": "NIXPACKS" },
+     "deploy": {
+       "startCommand": "npm start",
+       "healthcheckPath": "/health-check",
+       "healthcheckTimeout": 300
+     }
+   }
+   ```
 
-```json
-{
-  "$schema": "https://railway.app/railway.schema.json",
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "npm run start",
-    "healthcheckPath": "/health-check",
-    "healthcheckTimeout": 300,
-    "restartPolicyType": "ON_FAILURE",
-    "restartPolicyMaxRetries": 5
-  }
-}
-```
+### Alternative Deployments
 
-#### 5. Monitoring và Logs
+<details>
+<summary>Heroku Deployment</summary>
 
-```bash
-# Xem logs real-time
-railway logs --follow
-
-# Xem logs deploy
-railway logs --deployment
-
-# Kiểm tra service status
-railway status
-```
-
-### Alternative Deployment Options
-
-#### Heroku
 ```bash
 # Install Heroku CLI
 npm install -g heroku
 
-# Login và create app
+# Login and create app
 heroku login
 heroku create your-app-name
 
@@ -689,8 +565,11 @@ heroku config:set MONGODB_URI=your_mongodb_uri
 # Deploy
 git push heroku main
 ```
+</details>
 
-#### Docker Deployment
+<details>
+<summary>Docker Deployment</summary>
+
 ```dockerfile
 FROM node:18-alpine
 
@@ -705,53 +584,102 @@ EXPOSE 3000
 
 CMD ["npm", "start"]
 ```
+</details>
+
+## 🧪 Testing
+
+### Running Tests
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run specific test file
+npm test -- --grep "auth"
+```
+
+### Test Structure
+
+```
+📁 test/
+├── 📁 unit/           # Unit tests
+├── 📁 integration/    # Integration tests
+├── 📁 e2e/           # End-to-end tests
+└── 📁 fixtures/      # Test data
+```
 
 ## 🤝 Contributing
 
+We welcome contributions! Please follow these steps:
+
 ### Development Workflow
 
-1. **Fork** repository
-2. **Create** feature branch
+1. **Fork** the repository
+2. **Clone** your fork
+   ```bash
+   git clone https://github.com/your-username/App_chat.git
+   ```
+3. **Create** a feature branch
    ```bash
    git checkout -b feature/amazing-feature
    ```
-3. **Commit** changes
+4. **Make** your changes
+5. **Test** your changes
    ```bash
-   git commit -m 'Add amazing feature'
+   npm test
+   npm run dev  # Manual testing
    ```
-4. **Push** to branch
+6. **Commit** your changes
+   ```bash
+   git commit -m 'feat: add amazing feature'
+   ```
+7. **Push** to your branch
    ```bash
    git push origin feature/amazing-feature
    ```
-5. **Create** Pull Request
+8. **Create** a Pull Request
 
-### Code Style
+### Code Style Guidelines
 
-- Sử dụng **ES6+ modules**
-- **JSDoc** comments cho functions
-- **Consistent naming**: camelCase cho variables, PascalCase cho classes
-- **Error handling**: Proper try-catch và error responses
+- Use **ES6+ modules** and modern JavaScript
+- Follow **camelCase** for variables, **PascalCase** for classes
+- Add **JSDoc** comments for functions
+- Include **error handling** with try-catch blocks
+- Write **meaningful commit messages**
 
-### Testing
+### Commit Message Format
 
-```bash
-# Chạy tests (khi có)
-npm test
+```
+type(scope): description
 
-# Coverage
-npm run test:coverage
+Types: feat, fix, docs, style, refactor, test, chore
+Scope: auth, chat, api, db, etc.
+
+Examples:
+feat(auth): add refresh token mechanism
+fix(chat): resolve message duplication issue
+docs(readme): update installation guide
 ```
 
-## 📞 Support
+## 📞 Support & Community
 
-- **Issues**: [GitHub Issues](https://github.com/thientrile/App_chat/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/thientrile/App_chat/discussions)
-- **Email**: your-email@domain.com
+- **🐛 Issues**: [GitHub Issues](https://github.com/thientrile/App_chat/issues)
+- **💬 Discussions**: [GitHub Discussions](https://github.com/thientrile/App_chat/discussions)
+- **📧 Email**: your-email@domain.com
+- **📚 Wiki**: [Project Wiki](https://github.com/thientrile/App_chat/wiki)
 
 ## 📄 License
 
-This project is licensed under the ISC License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **ISC License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-**Happy Coding! 🎉**
+<div align="center">
+  <h3>🎉 Happy Coding!</h3>
+  <p>Made with ❤️ by <a href="https://github.com/thientrile">thientrile</a></p>
+  
+  <a href="#-app-chat">⬆️ Back to Top</a>
+</div>
