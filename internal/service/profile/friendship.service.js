@@ -1,13 +1,10 @@
-import notificationModel from "../../model/notification.model.js";
 import friendshipModel from "../../model/friendships.mode.js";
-import { getAllFcmToken } from "../../repository/key.repo.js";
-import { pushMessage } from "../../../pkg/firebase/index.js";
 import { convertToObjectIdMongoose, omitInfoData, randomId, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import { checkUserExistByUserId, userFindById } from "../../repository/user.repo.js";
-import { checkrelationship } from "../../repository/friendship.repo.js";
 import { OmitUser } from "../../output/user.js";
 import { KeyRedisGroup } from "../../../pkg/cache/cache.js";
 import { BadRequestError } from "../../../pkg/response/error.js";
+import { sendNotifyForUser } from "../notifycation/notify.service.js";
 export const sendFriendRequestToStranger = async (body) => {
   const { user_send, receiveId, message } = body;
   const findreceive = await userFindById(receiveId);
