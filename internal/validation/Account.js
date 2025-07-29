@@ -42,14 +42,7 @@ const inputSetFcmToken = Joi.object({
   token: Joi.string().required(),
 }).required();
 
-/**
- * Schema for validating friend request input
- * @type {Joi.ObjectSchema}
- */
-const inputSendFriendRequest = Joi.object({
-  user_receive: Joi.string().required(),
-  message: Joi.string().max(500).required()
-});
+
 
 
 export {
@@ -57,5 +50,4 @@ export {
   schema,
   inputRegister,
   inputLogin,
-  inputSendFriendRequest
 }

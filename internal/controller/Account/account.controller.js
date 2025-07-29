@@ -1,6 +1,5 @@
 import { SuccessReponse } from "../../../pkg/response/success.js";
 import { loginAccount, logoutAccount, refreshToken, registerAccount,  } from "../../service/Account/access.service.js";
-import { sendFriendRequestToStranger } from "../../service/Account/friendship.service.js";
 import { setFcmToken } from "../../service/Account/key.service.js";
 
 
@@ -44,21 +43,10 @@ const SetFirebaseToken = async (req, res) => {
 }
 
 
-const sendFriendRequest = async (req, res) => {
-    new SuccessReponse({
-        message: "Send friend request successfully",
-        metadata: await sendFriendRequestToStranger({
-            ...req.body,
-            user_send: req.userId
-        })
-    }).send(res);
-}
-
 export {
     LoginAccount,
     SetFirebaseToken,
     RegisterAccount,
     RefreshToken,
     LogoutAccount,
-    sendFriendRequest
 }

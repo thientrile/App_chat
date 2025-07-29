@@ -1,13 +1,13 @@
 // internal/testFirebase.js
 
-import { initFirebase } from "../../internal/initializes/firebase.ini.js";
+import  initFirebase  from "../../internal/initializes/firebase.ini.js";
 import { pushMessage } from "../../pkg/firebase/index.js";
 
 initFirebase();
 
 const test = async () => {
   const tokens = [
-    "dF1QnGAYRESNKgGGZqVvD2:APA91bHgu3fZPaF6ScMw9xwxW0drN2eoodqd0_iHKBKPSnlj93V_1ZwoUYOtQ2SFBcCJKq4Bx9d42VNmKvngj--8a2iSEvsOOmytPbw3FntgHGxaErFfMNg",
+    "eBae0ZXTR_uc23CuAbkvp2:APA91bFtu0lv4aLCoxbfOl5ZlNtKj_VTDVu0ARTbBuyLvcbPcqXx_LtDRWNV4vKrY3lXJdh2I-T_EtKfU0ZW3jcc-epxMW__0ENLnTbDzkM0xIWtTi6UhrU",
   ];
 
   const message = {

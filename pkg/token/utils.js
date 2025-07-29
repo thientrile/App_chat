@@ -8,8 +8,9 @@ const createTokenPair = async (payload) => {
         "utf8"
     );
     const publicKey = await importSPKI(publicKeyPem, "RSA-OAEP");
-    const jit = randomUUID();
-    payload.jit = jit;
+    const sessionId = randomUUID();
+    payload.sessionId = sessionId;
+    
     const accessToken = await new EncryptJWT(payload)
         .setProtectedHeader({ alg: "RSA-OAEP", enc: "A256GCM" })
         .setIssuedAt()

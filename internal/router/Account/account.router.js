@@ -2,9 +2,9 @@
 
 import express from 'express';
 import validateSchema from '../../../pkg/validation/joi.js';
-import { inputLogin, inputRegister, inputSendFriendRequest, inputSetFcmToken } from '../../validation/Account.js';
+import { inputLogin, inputRegister, inputSetFcmToken } from '../../validation/Account.js';
 import authertication from '../../../pkg/token/auth.js';
-import { LoginAccount, LogoutAccount, RefreshToken, RegisterAccount, sendFriendRequest, SetFirebaseToken } from '../../controller/Account/account.controller.js';
+import { LoginAccount, LogoutAccount, RefreshToken, RegisterAccount,  SetFirebaseToken } from '../../controller/Account/account.controller.js';
 import { asyncHandler } from '../../../pkg/async/asyncHandler.js';
 const AccoutRouter=express.Router();
 
@@ -14,6 +14,5 @@ AccoutRouter.use(authertication)
 AccoutRouter.patch('/refresh-token', asyncHandler(RefreshToken));
 AccoutRouter.delete('/logout', asyncHandler(LogoutAccount));
 AccoutRouter.patch('/set-fcm-token', validateSchema(inputSetFcmToken), asyncHandler(SetFirebaseToken));
-AccoutRouter.post('/send-friend-request', validateSchema(inputSendFriendRequest), asyncHandler(sendFriendRequest));
 
 export default AccoutRouter;

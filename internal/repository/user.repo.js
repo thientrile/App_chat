@@ -1,16 +1,16 @@
-import { isValidation } from "../../pkg/utils/index.utils.js";
+import { convertToObjectIdMongoose, isValidation } from "../../pkg/utils/index.utils.js";
 import userModel from "../model/user.model.js";
 
 
 
 
-const checkUserExistById = async (id) => {
-	return userModel.findById(id).lean();
+export const checkUserExistByUserId = async (UserId) => {
+	return userModel.findById(convertToObjectIdMongoose(UserId)).lean();
 };
-const userDeleteById = async (id) => {
-	return userModel.deleteOne({ _id: id });
+export const userDeleteByUserId = async (UserId) => {
+	return userModel.deleteOne({ _id: convertToObjectIdMongoose(UserId) });
 };
-const userFindByusername = async (username) => {
+export const userFindByusername = async (username) => {
 	let filter;
 	if (isValidation.isEmail(username)) {
 		filter = { usr_email: username };
@@ -23,9 +23,7 @@ const userFindByusername = async (username) => {
 	return userModel.findOne(filter).lean();
 };
 
-export {
-	checkUserExistById,
-	userDeleteById,
-	userFindByusername,
+export const userFindById = async (Id) => {
+	return userModel.findOne({ usr_id: Id }).lean();
+}
 
-};

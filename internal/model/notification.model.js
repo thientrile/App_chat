@@ -1,9 +1,14 @@
 import { Schema, model } from 'mongoose';
+import { randomId } from '../../pkg/utils/index.utils.js';
 
 const Documents = "Notification";
 const Collections = "Notifications";
 
 const notificationSchema = new Schema({
+    notif_id:{
+        type: Number,
+        default: () => randomId() // Random ID generation
+    },
     notif_user_receive: { 
         type: Schema.Types.ObjectId,
         ref: "User"
@@ -31,6 +36,6 @@ const notificationSchema = new Schema({
     collection: Collections,
 });
 
-notificationSchema.index({ notif_user_receive: 1, notif_user_sender: 1, notif_type: 1 });
+notificationSchema.index({ notif_user_receive: 1, notif_user_sender: 1, notif_type: 1, notif_id: 1 });
 
 export default model(Documents, notificationSchema);

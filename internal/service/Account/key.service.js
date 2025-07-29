@@ -5,13 +5,14 @@ import keyModel from "../../model/key.model.js";
 import { updateFcmToken } from "../../repository/key.repo.js";
 const createKeyToken = async (userId) => {
   const clientId = randomUUID();
-  const [tokens] = await Promise.all([
+  const [tokens,key] = await Promise.all([
     createTokenPair({ userId, clientId }),
     keyModel.create({
       tkn_userId: convertToObjectIdMongoose(userId),
       tkn_clientId: clientId,
     }),
   ]);
+  console.log("🚀 ~ createKeyToken ~ key:", key)
   return tokens;
 
 };

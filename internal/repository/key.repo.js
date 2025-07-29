@@ -18,12 +18,8 @@ const tkn_updateOne = async (filter, data) => {
 };
 const tkn_checkKeyTokenVerify = async (clientId) => {
 
-  const result = await keytokenModel.aggregate([
-    {
-      $match: {
-        tkn_clientId: clientId,
-      },
-    },
+ const [result] =await keytokenModel.aggregate([
+    { $match: { tkn_clientId: clientId } },
     {
       $lookup: {
         from: "Users",
@@ -32,13 +28,11 @@ const tkn_checkKeyTokenVerify = async (clientId) => {
         as: "user",
       },
     },
-    {
-      $unwind: "$user",
-    },
-
+    // { $match: { user: { $ne: [] } } },  // Lọc user tồn tại
+    { $unwind: "$user" },
     {
       $project: {
-        id: "$usr_id",
+        id: "$user.usr_id",
         _id: 0,
         tkn_clientId: 1,
         tkn_userId: 1,
@@ -47,14 +41,10 @@ const tkn_checkKeyTokenVerify = async (clientId) => {
         info: "$user",
       },
     },
-
-    {
-      $match: {
-        status: "active",
-      },
-    },
+    { $match: { status: "active" } },
   ]);
-  return result[0];
+  return result || null;
+
 };
 const adddJitToKeyToken = async (clientId, jit) => {
   return keytokenModel.findOneAndUpdate(

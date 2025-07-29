@@ -3,12 +3,13 @@ import { addPrefixToKeys, convertToObjectIdMongoose, isValidation, omitInfoData,
 import userModel from "../../model/user.model.js";
 import { createKeyToken } from "./key.service.js";
 import { AuthFailureError, ForbiddenError, getErrorMessageMongose } from "../../../pkg/response/error.js";
-import { userFindByusername } from "../../repository/user.repo.js";
+import { userDeleteByUserId, userFindByusername } from "../../repository/user.repo.js";
 import { createTokenPair } from "../../../pkg/token/utils.js";
 import { adddJitToKeyToken, tkn_deleteOne } from "../../repository/key.repo.js";
 import { pushToArray, setData } from "../../../pkg/redis/utils.js";
 import { keyRedisLogout } from "../../../pkg/cache/cache.js";
 import notificationModel from "../../model/notification.model.js";
+import { OmitUser } from "../../output/user.js";
 
 
 const registerAccount = async (body) => {
@@ -36,11 +37,11 @@ const registerAccount = async (body) => {
   const user = removePrefixFromKeys(newUser.toObject(), "usr_");
   const tokens = await createKeyToken(newUser._id.toString());
   if (!tokens) {
-    await userDeleteById(newUser._id);
+    await userDeleteByUserId(newUser._id);
     throw new AuthFailureError(" Unable to create account");
   }
   return {
-    user: omitInfoData({ fields: ["salt", "_id", "status", "__v", "createdAt", "updatedAt"], object: user }),
+    user: omitInfoData({ fields: OmitUser, object: user }),
     tokens
   };
 
@@ -63,17 +64,17 @@ const loginAccount = async (payload) => {
     throw new AuthFailureError("Unable to login");
   }
   return {
-    user: omitInfoData({ fields: ["salt", "_id", "status", "__v", "createdAt", "updatedAt"], object: infor }),
+    user: omitInfoData({ fields: OmitUser, object: infor }),
     tokens
-  };;
+  };
 
 }
 const refreshToken = async (decoded) => {
 
   const [tokens] = await Promise.all([
     createTokenPair({ userId: decoded.userId, clientId: decoded.clientId }),
-    pushToArray(keyRedisLogout(decoded.userId), decoded.jit),
-    adddJitToKeyToken(decoded.clientId, decoded.jit),
+    pushToArray(keyRedisLogout(decoded.userId), decoded.sessionId),
+    adddJitToKeyToken(decoded.clientId, decoded.sessionId),
   ]);
   if (!tokens) {
     throw new AuthFailureError(" Unable to refresh token");
@@ -84,7 +85,7 @@ const refreshToken = async (decoded) => {
 }
 const logoutAccount = async (decoded) => {
   await Promise.all([
-    setData(keyRedisLogout(decoded.userId, decoded.jit), 1),
+     pushToArray(keyRedisLogout(decoded.userId), decoded.sessionId),
     tkn_deleteOne({ tkn_userId: convertToObjectIdMongoose(decoded.userId), tkn_clientId: decoded.clientId })
   ])
 

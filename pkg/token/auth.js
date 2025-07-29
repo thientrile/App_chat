@@ -40,7 +40,7 @@ const authertication = async (req, res, next) => {
       console.error("Error decrypting token:", err.message);
       throw new AuthFailureError("Token has expired");
     }
-
+    console.log(decrypted.clientId);
     const keyStore = await tkn_checkKeyTokenVerify(decrypted.clientId);
     if (!keyStore) throw new AuthFailureError("Token has expired");
 
@@ -48,7 +48,7 @@ const authertication = async (req, res, next) => {
     if (userId !== decrypted.userId) throw new AuthFailureError("Token has expired");
 
     const logout = await getArray(keyRedisLogout(userId));
-    if (logout.includes(decrypted.jit) || keyStore.tkn_jit.includes(decrypted.jit)) {
+    if (logout.includes(decrypted.sessionId) || keyStore.tkn_jit.includes(decrypted.sessionId)) {
       throw new AuthFailureError("Token has expired");
     }
 
