@@ -1,7 +1,7 @@
 import { omitInfoData, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import userModel from "../../model/user.model.js";
 import { OmitUser } from "../../output/user.js";
-import { checkrelationship } from "../../repository/friendship.repo.js";
+import { checkrelationship, getFriendIdsOfUser } from "../../repository/friendship.repo.js";
 import { userFindById } from "../../repository/user.repo.js";
 
 
@@ -22,7 +22,6 @@ export const findUserByPhoneNumber = async (phoneNumber, userId) => {
 
 
 export const findUserById = async (Id,userId) => {
-    console.log("🚀 ~ findUserById ~ userId:", userId)
     const findUser= await userFindById(Id);
     if (!findUser) {
         throw new Error("User not found");
@@ -33,4 +32,8 @@ export const findUserById = async (Id,userId) => {
         user:omitInfoData({fields:OmitUser,object:user}),
         friendship: checkFriendship
     }
+}
+
+export const listFriends = async (userId) => {
+    return await getFriendIdsOfUser(userId)
 }

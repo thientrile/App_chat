@@ -2,6 +2,11 @@ import { Schema, model } from "mongoose";
 const Documents = "Room";
 const Collections = "Rooms";
 const roomSchema = new Schema({
+    room_id: {
+        type: String,
+        required: true,
+        unique: true,
+    },
     room_name: {
         type: String,
         default: "Default Room",

@@ -19,6 +19,11 @@ const friendshipSchema = new Schema({
         type: String,
         enum: ['pending', 'accepted', 'rejected', 'blocked'],
         default: 'pending',
+    },
+    frp_blocker:{
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        default: null,
     }
 },{
     timestamps: true,

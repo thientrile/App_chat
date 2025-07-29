@@ -8,5 +8,6 @@ export const Consts = {
       en: "Connect to Redis failed",
     },
   },
-  ONLINE_USERS_KEY: "list:online_users"
+  ONLINE_USERS_KEY: "online_users",
+  ONLINE_SOCKET_KEY: "online_sockets",
 };

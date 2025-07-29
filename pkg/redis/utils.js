@@ -1,3 +1,5 @@
+import { Logger } from "../../global.js";
+import { Consts } from "../../internal/const/consts.js";
 
 /**
  * Set data in Redis.
@@ -71,6 +73,8 @@ const pushToArray = async (key, ...values) => {
 
 
 
+
+
 /**
  * Get all items from a Redis List.
  * @param {string} key - The Redis key.
@@ -119,13 +123,62 @@ const incr = async (key, ttl = 60) => {
     return 0;
   }
 };
+const sAdd= async(key, value) => {
+  try {
+    return await global.RedisClient.sAdd(key, value);
+  } catch (err) {
+    console.error("Redis sAdd error:", err);
+    return 0;
+  }
+}
+const sRem = async (key, value) => {
+  try {
+    return await global.RedisClient.sRem(key, value);
+  } catch (err) {
+    console.error("Redis sRem error:", err);
+    return 0;
+  }
+}
+const sIsMember = async (key, value) => {
+  try {
+    return await global.RedisClient.sIsMember(key, value);
+  } catch (err) {
+    console.error("Redis sIsMember error:", err);
+    return false;
+  }
+}
+const sCard= async (key) => {
+  try {
+    return await global.RedisClient.sCard(key);
+  } catch (err) {
+    console.error("Redis sCard error:", err);
+    return 0;
+  }
+}
+const sMembers= async (key) => {
+  try {
+    return await global.RedisClient.sMembers(key);
+  } catch (err) {
+    console.error("Redis sMembers error:", err);
+    return [];
+  }
+}
+
+
+
 
 export {
+ 
   setData,
   getData,
   incr,
   delKey,
   pushToArray,
   getArray,
-  removeFromArray
+  removeFromArray,
+  sAdd,
+  sRem,
+  sIsMember,
+  sCard,
+  sMembers
 };

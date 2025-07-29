@@ -1,9 +1,5 @@
-export const chatHandler = (socket, io) => {
-  socket.on("chat:send", ({groupId,userId,msg}) => {
-    console.log("💬 Message:", msg);
-    io.to(groupId).emit("chat:receive", {userId, msg});
-  });
-};
+import { checkUserIshasOnline } from "../service/Connect/connect.service.js";
+
 export const chatRoomHandler = (socket, io) => {
   // Khi client yêu cầu tham gia room
   socket.on("room:join", ({ groupId }) => {
@@ -38,5 +34,14 @@ export const chatRoomHandler = (socket, io) => {
       text,
       sentAt: new Date().toISOString(),
     });
+  });
+};
+
+
+export const chatHandler = (socket, io) => {
+  socket.on("user_online",async ({id}) => {
+    const isOnline =await checkUserIshasOnline(id)
+    console.log("🚀 ~ chatHandler ~ isOnline:", isOnline)
+    io.emit("user_online", {id, isOnline});
   });
 };

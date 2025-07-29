@@ -1,5 +1,6 @@
 import { createAdapter } from "@socket.io/redis-adapter";
 import { Server } from "socket.io";
+import { socketAsyncHandler } from "../async/asyncHandler.js";
 
 /**
  * Khởi tạo Socket.IO server sử dụng Redis Adapter
@@ -50,7 +51,7 @@ export async function initSocketIO(httpServer, RedisClient, socketMiddlewares = 
       }
     }
 
-    socket.on("disconnect", async () => {
+    socket.on("disconnect",socketAsyncHandler( async () => {
       
       console.log(`💨 [SOCKET] Disconnected: ${socket.id}`);
       for (const handler of socketDisconnHandlers) {
@@ -63,12 +64,11 @@ export async function initSocketIO(httpServer, RedisClient, socketMiddlewares = 
         }
       }
 
-    });
+    }));
   });
 
   // Có thể lưu global để gọi emit từ service khác
-  // global.IO = io;
+  global.IO = io;
 
   console.log("✅ Socket.IO initialized with Redis adapter.");
-  return io;
 }

@@ -31,5 +31,5 @@ const messageEventSchema = new Schema({
     timestamps: true,
     collection: Collections,
 });
-messageEventSchema.index({ event_msgId: 1, event_serverId: 1 });
+messageEventSchema.index({ event_msgId: 1, event_senderId: 1 });
 export default model(Documents, messageEventSchema);
