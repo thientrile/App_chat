@@ -38,5 +38,5 @@ const roomSchema = new Schema({
     timestamps: true,
     collection: Collections,
 });
-roomSchema.index({ room_name: 1 });
+roomSchema.index({ room_name: 1,'room_members.userId': 1 });
 export default model(Documents, roomSchema);

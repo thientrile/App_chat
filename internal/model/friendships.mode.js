@@ -29,4 +29,8 @@ const friendshipSchema = new Schema({
     timestamps: true,
     collection: Collections,
 })
+friendshipSchema.index(
+  { frp_userId1: 1, frp_userId2: 1 },
+  { unique: true }
+);
 export default model(Documents, friendshipSchema);
