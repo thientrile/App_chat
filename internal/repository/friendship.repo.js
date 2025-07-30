@@ -25,16 +25,13 @@ export const getFriendIdsOfUser = async (userId) => {
     ]
   });
 
-  // Lấy danh sách userId còn lại
+  // Trả về danh sách ObjectId (kiểu string) của bạn bè
   const friendIds = friendships.map(f => {
-    if (f.frp_userId1.equals(objectId)) {
-      const data=removePrefixFromKeys(f.frp_userId2, "frp_");
-      return omitInfoData({ fields: OmitUser, object: data });
-    } else {
-      const data=removePrefixFromKeys(f.frp_userId1, "frp_");
-      return omitInfoData({ fields: OmitUser, object: data });
-    }
+    return f.frp_userId1.equals(objectId)
+      ? f.frp_userId2.toString()
+      : f.frp_userId1.toString();
   });
+  
 
   return friendIds;
 };
