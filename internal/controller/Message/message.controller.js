@@ -38,3 +38,22 @@ export const MaskAsRead = async (req, res) => {
         metadata: await markMessagesAsRead(roomId, req.decoded.userId)
     }).send(res);
 }
+
+export const sendMessageVideoCall = async (req, res) => {
+    const { roomId, type, content } = req.body;
+    try {
+        if (global.IO) {
+            global.IO.to(roomId).emit(`${roomId}:video-call`, {
+                type,
+                content,
+                userId: req.decoded.userId
+            });
+        }
+        new SuccessReponse({
+            message: "Video call message sent successfully",
+            metadata: message
+        }).send(res);
+    } catch (error) {
+        res.status(500).json({ error: "Failed to send video call message" });
+    }
+}
