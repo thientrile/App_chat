@@ -1,130 +1,12 @@
 import { convertToObjectIdMongoose } from '../../pkg/utils/index.utils.js';
-import RoomModel from '../models/room.model.js';
+import messageMode from '../model/message.mode.js';
+import roomModel from '../model/room.model.js';
 
-// export const getChatRooms = async (userId) => {
-//     const rooms = await RoomModel.aggregate([
-//         {
-//             $match: {
-//                 'room_members.userId': convertToObjectIdMongoose(userId)
-//             }
-//         },
-//         {
-//             $lookup: {
-//                 from: 'messages',
-//                 localField: 'room_last_messages',
-//                 foreignField: '_id',
-//                 as: 'last_message'
-//             }
-//         },
-//         {
-//             $unwind: {
-//                 path: '$last_message',
-//                 preserveNullAndEmptyArrays: true
-//             }
-//         },
-//         {
-//             $lookup: {
-//                 from: 'users',
-//                 localField: 'room_members.userId',
-//                 foreignField: '_id',
-//                 as: 'members'
-//             }
-//         },
-//         {
-//             $addFields: {
-//                 display: {
-//                     $cond: [
-//                         { $eq: ['$room_type', 'private'] },
-//                         {
-//                             $arrayElemAt: [
-//                                 {
-//                                     $filter: {
-//                                         input: '$members',
-//                                         as: 'member',
-//                                         cond: { $ne: ['$$member._id', convertToObjectIdMongoose(userId)] }
-//                                     }
-//                                 },
-//                                 0
-//                             ]
-//                         },
-//                         {
-//                             room_name: '$room_name',
-//                             avatars: {
-//                                 $slice: ['$members.usr_avatar', 4]
-//                             }
-//                         }
-//                     ]
-//                 }
-//             }
-//         },
-//         {
-//             $sort: {
-//                 'last_message.createdAt': -1
-//             }
-//         },
-//         {
-//             $project: {
-//                 room_id: 1,
-//                 room_type: 1,
-//                 last_message: {
-//                     msg_content: 1,
-//                     createdAt: 1
-//                 },
-//                 display_name: {
-//                     $cond: [
-//                         { $eq: ['$room_type', 'private'] },
-//                         '$display.usr_fullname',
-//                         '$display.room_name'
-//                     ]
-//                 },
-//                 display_avatar: {
-//                     $cond: [
-//                         { $eq: ['$room_type', 'private'] },
-//                         '$display.usr_avatar',
-//                         '$display.avatars'
-//                     ]
-//                 }
-//             }
-//         },
-//         {
-//             $lookup: {
-//                 from: 'messageevents',
-//                 let: {
-//                     lastMsgId: '$room_last_messages',
-//                     roomId: '$_id'
-//                 },
-//                 pipeline: [
-//                     {
-//                         $match: {
-//                             $expr: {
-//                                 $and: [
-//                                     { $eq: ['$event_msgId', '$$lastMsgId'] },
-//                                     { $eq: ['$event_senderId', convertToObjectIdMongoose(userId)] },
-//                                     { $eq: ['$event_type', 'readed'] }
-//                                 ]
-//                             }
-//                         }
-//                     }
-//                 ],
-//                 as: 'read_status'
-//             }
-//         },
-//         {
-//             $addFields: {
-//                 is_read: {
-//                     $gt: [{ $size: '$read_status' }, 0]
-//                 }
-//             }
-//         }
 
-//     ]);
-
-//     return rooms;
-// };
 export const getChatRooms = async (userId) => {
     const objectId = convertToObjectIdMongoose(userId);
 
-    const rooms = await RoomModel.aggregate([
+    const rooms = await roomModel.aggregate([
         // PHẦN 1: các phòng user còn trong room_members
         {
             $match: {
@@ -284,3 +166,47 @@ export const getChatRooms = async (userId) => {
 
     return rooms;
 };
+
+
+export const getRoomById = async (roomId) => {
+     const room = await roomModel
+            .where({ room_id: roomId })
+            .findOne();
+
+        if (!room) {
+            return null;
+        }
+        const messages = await messageMode.find({msg_room: room._id});
+
+        const memberDetails = await roomModel.aggregate([
+            {
+                $match: { _id: room._id }
+            },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'room_members.userId',
+                    foreignField: '_id',
+                    as: 'members'
+                }
+            },
+            {
+                $unwind: '$members'
+            },
+            {
+                $project: {
+                    _id: 0,
+                    userId: '$members._id',
+                    usr_fullname: '$members.usr_fullname',
+                    usr_avatar: '$members.usr_avatar',
+                    role: '$room_members.role'
+                }
+            }
+        ]);
+
+        return {
+            room,
+            messages,
+            memberDetails
+        };
+}
