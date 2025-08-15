@@ -1,11 +1,15 @@
-import {Schema, model} from 'mongoose';
+import { Schema, model } from 'mongoose';
+import { randomId } from '../../pkg/utils/index.utils.js';
 const Documents = "Message";
 const Collections = "Messages";
 
 const messageSchema = new Schema({
-
+    msg_id: {
+        type: String,
+        default: () => randomId()
+    },
     msg_content: {
-        type: String,   
+        type: String,
         required: true,
     },
     msg_sender: {
@@ -27,7 +31,7 @@ const messageSchema = new Schema({
         type: Boolean,
         default: false,
     },
-},{
+}, {
     timestamps: true,
     collection: Collections,
 })

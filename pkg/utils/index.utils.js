@@ -88,8 +88,14 @@ const removePrefixFromKeys = (obj, prefix) => {
   }
   return newObj;
 };
-
+ function pairRoomId(a, b) {
+  const sa = String(a), sb = String(b);
+  return sa < sb ? `${sa}.${sb}` : `${sb}.${sa}`;
+}
+const escape = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 export {
+  escape,
+  pairRoomId,
   addPrefixToKeys,
   removePrefixFromKeys,
   convertToObjectIdMongoose,
