@@ -34,8 +34,8 @@ export const findUserById = async (Id, userId) => {
     }
 }
 
-export const listFriends = async (userId) => {
-    const userIds = await getFriendIdsOfUser(userId);
+export const listFriends = async (userId, options) => {
+    const userIds = await getFriendIdsOfUser(userId,options);
 
     const friends = await userModel.find({ _id: { $in: userIds } });
     return friends.map(friend => {

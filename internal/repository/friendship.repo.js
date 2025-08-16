@@ -14,24 +14,68 @@ export const checkrelationship = async (userId1, userId2) => {
   return friendship.frp_status;
 }
 
-export const getFriendIdsOfUser = async (userId) => {
+const escapeRegExp = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+/**
+ * Lấy danh sách bạn bè (ID) của user, có thể lọc theo tên/điện thoại.
+ * @param {string|ObjectId} userId - _id của User (ObjectId)
+ * @param {{ q?: string, limit?: number }} options
+ * @returns {Promise<string[]>} friendIds (ObjectId dưới dạng string)
+ */
+export const getFriendIdsOfUser = async (userId, options = {}) => {
+  const { q, limit = 1000 } = options;
   const objectId = convertToObjectIdMongoose(userId);
 
-  const friendships = await friendshipModel.find({
-    frp_status: 'accepted',
-    $or: [
-      { frp_userId1: objectId },
-      { frp_userId2: objectId }
-    ]
-  });
+  // Tạo bộ lọc tìm theo tên/điện thoại nếu có q
+  let nameOrPhoneMatch = null;
+  if (q && q.trim()) {
+    const re = new RegExp(escapeRegExp(q.trim()), "i");
+    nameOrPhoneMatch = {
+      $or: [
+        { "friend.usr_fullname": re },
+        { "friend.usr_phone": re }
+      ]
+    };
+  }
 
-  // Trả về danh sách ObjectId (kiểu string) của bạn bè
-  const friendIds = friendships.map(f => {
-    return f.frp_userId1.equals(objectId)
-      ? f.frp_userId2.toString()
-      : f.frp_userId1.toString();
-  });
-  
+  const pipeline = [
+    // Chỉ lấy friendship đã accept và có user tham gia
+    {
+      $match: {
+        frp_status: "accepted",
+        $or: [{ frp_userId1: objectId }, { frp_userId2: objectId }]
+      }
+    },
+    // Xác định friendId = người còn lại
+    {
+      $addFields: {
+        friendId: {
+          $cond: [{ $eq: ["$frp_userId1", objectId] }, "$frp_userId2", "$frp_userId1"]
+        }
+      }
+    },
+    // Join thông tin bạn bè để search theo tên/điện thoại
+    {
+      $lookup: {
+        from: "Users",                // đúng tên collection của bạn
+        localField: "friendId",
+        foreignField: "_id",
+        as: "friend",
+        pipeline: [
+          { $project: { _id: 1, usr_fullname: 1, usr_phone: 1 } }
+        ]
+      }
+    },
+    { $unwind: "$friend" },
+  ];
 
-  return friendIds;
+  if (nameOrPhoneMatch) pipeline.push({ $match: nameOrPhoneMatch });
+
+  pipeline.push(
+    { $limit: Math.max(1, Math.min(+limit || 1000, 5000)) },
+    { $project: { _id: 0, friendId: 1 } }
+  );
+
+  const rows = await friendshipModel.aggregate(pipeline);
+  return rows.map(r => String(r.friendId));
 };

@@ -44,11 +44,15 @@ export const createRoomPrivate = async (userId, usr_id) => {
 
 
 export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null) => {
+ 
   // check room is exist
   const findRoom = await findRoomById(roomId)
+  // console.log("🚀 ~ getRoomMessages ~ findRoom:", findRoom)
   if (!findRoom) {
     throw new BadRequestError("Room not found");
   }
+
+        
   const getRoom= await roomModel.findById(findRoom._id)
   // check user is member of room
   const isMember = getRoom.room_members.some(member => member.userId.equals(userId));
