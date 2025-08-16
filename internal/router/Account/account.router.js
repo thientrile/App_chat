@@ -4,7 +4,7 @@ import express from 'express';
 import validateSchema from '../../../pkg/validation/joi.js';
 import { inputLogin, inputRegister, inputSetFcmToken } from '../../validation/Account.js';
 import authertication from '../../../pkg/token/auth.js';
-import { LoginAccount, LogoutAccount, RefreshToken, RegisterAccount,  SetFirebaseToken } from '../../controller/Account/account.controller.js';
+import { LoginAccount, LogoutAccount, RefreshToken, RegisterAccount,  SetFirebaseToken, updateAccount } from '../../controller/Account/account.controller.js';
 import { asyncHandler } from '../../../pkg/async/asyncHandler.js';
 const AccoutRouter=express.Router();
 

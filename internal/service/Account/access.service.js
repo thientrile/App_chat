@@ -92,10 +92,6 @@ const logoutAccount = async (decoded) => {
   return true
 }
 
-
-
-
-
 export {
   registerAccount,
   loginAccount,
