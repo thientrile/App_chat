@@ -1,6 +1,6 @@
 import { SuccessReponse } from "../../../pkg/response/success.js";
 import { acceptFriendRequest, rejectFriendRequest, sendFriendRequestToStranger } from "../../service/profile/friendship.service.js";
-import { findUserById, findUserByPhoneNumber, listFriends } from "../../service/profile/profile.service.js";
+import { findUserById, findUserByPhoneNumber, listFriends, updateProfileUser } from "../../service/profile/profile.service.js";
 
 export const SendFriendRequest = async (req, res) => {
     new SuccessReponse({
@@ -44,9 +44,19 @@ export const RejectFriendRequest = async (req, res) => {
         metadata
     }).send(res);
 }
+
+
 export const GetListFriends = async (req, res) => {
     new SuccessReponse({
         message: "List of friends",
         metadata: await listFriends(req.decoded.userId)
+    }).send(res);
+}
+
+
+export const updateProfile = async (req, res) => {
+    new SuccessReponse({
+        message: "Update profile successfully",
+        metadata: await updateProfileUser(req.decoded.userId, req.body)
     }).send(res);
 }
