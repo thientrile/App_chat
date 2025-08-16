@@ -7,6 +7,7 @@ import { BadRequestError } from "../../../pkg/response/error.js";
 import { sendNotifyForUser } from "../notifycation/notify.service.js";
 import { sAdd } from "../../../pkg/redis/utils.js";
 import roomModel from "../../model/room.model.js";
+import { createRoomPrivate } from "../Message/room.service.js";
 export const sendFriendRequestToStranger = async (body) => {
   const { user_send, receiveId, message } = body;
 
@@ -161,23 +162,7 @@ export const acceptFriendRequest = async (Id, userId) => {
     a.toString().localeCompare(b.toString())
   );
 
-  let room = await roomModel.findOne({
-    room_type: "private",
-    "room_members.userId": { $all: sortedIds },
-    room_members: { $size: 2 },
-  });
-
-  if (!room) {
-    room = await roomModel.create({
-      room_id: randomId(),
-      room_type: "private",
-      room_members: sortedIds.map((id) => ({
-        userId: id,
-        role: "member",
-      })),
-    });
-  }
-
+  const room = await createRoomPrivate(userId, Id)
   if (!room) {
     throw new BadRequestError("Không thể tạo phòng chat mới");
   }

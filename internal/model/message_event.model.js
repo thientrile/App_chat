@@ -32,4 +32,9 @@ const messageEventSchema = new Schema({
     collection: Collections,
 });
 messageEventSchema.index({ event_msgId: 1, event_senderId: 1 });
+messageEventSchema.index({ event_msgId: 1, event_type: 1 });
+messageEventSchema.index(
+  { event_msgId: 1, event_senderId: 1, event_type: 1 },
+  { unique: true, partialFilterExpression: { event_type: 'readed' } } // chặn trùng "đã đọc"
+);
 export default model(Documents, messageEventSchema);

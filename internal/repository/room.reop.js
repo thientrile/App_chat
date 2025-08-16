@@ -1,212 +1,181 @@
-import { convertToObjectIdMongoose } from '../../pkg/utils/index.utils.js';
-import messageMode from '../model/message.mode.js';
+import { convertToObjectIdMongoose, escape } from '../../pkg/utils/index.utils.js';
 import roomModel from '../model/room.model.js';
 
 
 export const getChatRooms = async (userId) => {
-    const objectId = convertToObjectIdMongoose(userId);
+  const objectId = convertToObjectIdMongoose(userId);
 
-    const rooms = await roomModel.aggregate([
-        // PHẦN 1: các phòng user còn trong room_members
-        {
+  const rooms = await roomModel.aggregate([
+    // 1) Các phòng mà user đang là member
+    { $match: { "room_members.userId": objectId } },
+
+    // 2) Union thêm các phòng user từng gửi tin nhắn
+    {
+      $unionWith: {
+        coll: "Rooms", // đúng tên collection bạn set trong schema
+        pipeline: [
+          {
+            $lookup: {
+              from: "Messages",
+              let: { uid: objectId },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$msg_sender", "$$uid"] } } }
+              ],
+              as: "sent_msgs"
+            }
+          },
+          { $match: { "sent_msgs.0": { $exists: true } } }
+        ]
+      }
+    },
+
+    // 3) Loại trùng
+    { $group: { _id: "$_id", doc: { $first: "$$ROOT" } } },
+    { $replaceRoot: { newRoot: "$doc" } },
+
+    // 4) Join last_message
+    {
+      $lookup: {
+        from: "Messages",
+        localField: "room_last_messages",
+        foreignField: "_id",
+        as: "last_message"
+      }
+    },
+    { $unwind: { path: "$last_message", preserveNullAndEmptyArrays: true } },
+
+    // 5) Join members
+    {
+      $lookup: {
+        from: "Users",
+        localField: "room_members.userId",
+        foreignField: "_id",
+        as: "members",
+        pipeline: [
+          { $project: { _id: 1, usr_id: 1, usr_fullname: 1, usr_avatar: 1 } }
+        ]
+      }
+    },
+
+    // 6) Tách "otherMember" cho private + gom avatar group
+    {
+      $addFields: {
+        otherMember: {
+          $first: {
+            $filter: {
+              input: "$members",
+              as: "m",
+              cond: { $ne: ["$$m._id", objectId] }
+            }
+          }
+        },
+        groupAvatars: { $slice: ["$members.usr_avatar", 4] }
+      }
+    },
+
+    // 7) Check read-status của last message (đặt TRƯỚC $project để còn field)
+    {
+      $lookup: {
+        from: "MessageEvents",
+        let: { lastMsgId: "$room_last_messages", me: objectId },
+        pipeline: [
+          {
             $match: {
-                'room_members.userId': objectId
-            }
-        },
-
-        // PHẦN 2: union thêm các phòng user từng gửi hoặc đọc tin nhắn
-        {
-            $unionWith: {
-                coll: 'rooms',
-                pipeline: [
-                    {
-                        $lookup: {
-                            from: 'messages',
-                            let: { uid: objectId },
-                            pipeline: [
-                                {
-                                    $match: {
-                                        $expr: { $eq: ['$msg_sender', '$$uid'] }
-                                    }
-                                }
-                            ],
-                            as: 'sent_msgs'
-                        }
-                    },
-                    {
-                        $match: {
-                            'sent_msgs.0': { $exists: true }
-                        }
-                    }
+              $expr: {
+                $and: [
+                  { $eq: ["$event_msgId", "$$lastMsgId"] },
+                  { $eq: ["$event_senderId", "$$me"] },
+                  { $eq: ["$event_type", "readed"] }
                 ]
+              }
             }
-        },
+          }
+        ],
+        as: "read_status"
+      }
+    },
+    { $addFields: { is_read: { $gt: [{ $size: "$read_status" }, 0] } } },
 
-        // Loại bỏ phòng trùng
-        {
-            $group: {
-                _id: '$_id',
-                doc: { $first: '$$ROOT' }
-            }
-        },
-        {
-            $replaceRoot: { newRoot: '$doc' }
-        },
+    // 8) Sort theo thời gian last_message
+    { $sort: { "last_message.createdAt": -1 } },
 
-        // Các bước còn lại giữ nguyên như bạn đang làm:
-        {
-            $lookup: {
-                from: 'messages',
-                localField: 'room_last_messages',
-                foreignField: '_id',
-                as: 'last_message'
-            }
+    // 9) Project KẾT QUẢ — id: private -> usr_id của otherMember; group -> room_id
+    {
+      $project: {
+        _id: 0,
+        id: {
+          $cond: [
+            { $eq: ["$room_type", "private"] },
+            "$otherMember.usr_id",
+            "$room_id"
+          ]
         },
-        {
-            $unwind: {
-                path: '$last_message',
-                preserveNullAndEmptyArrays: true
-            }
+        type: "$room_type",
+        last_message: {
+          msg_content: "$last_message.msg_content",
+          createdAt: "$last_message.createdAt"
         },
-        {
-            $lookup: {
-                from: 'users',
-                localField: 'room_members.userId',
-                foreignField: '_id',
-                as: 'members'
-            }
+        name: {
+          $cond: [
+            { $eq: ["$room_type", "private"] },
+            "$otherMember.usr_fullname",
+            "$room_name"
+          ]
         },
-        {
-            $addFields: {
-                display: {
-                    $cond: [
-                        { $eq: ['$room_type', 'private'] },
-                        {
-                            $arrayElemAt: [
-                                {
-                                    $filter: {
-                                        input: '$members',
-                                        as: 'member',
-                                        cond: { $ne: ['$$member._id', objectId] }
-                                    }
-                                },
-                                0
-                            ]
-                        },
-                        {
-                            room_name: '$room_name',
-                            avatars: {
-                                $slice: ['$members.usr_avatar', 4]
-                            }
-                        }
-                    ]
-                }
-            }
+        avatar: {
+          $cond: [
+            { $eq: ["$room_type", "private"] },
+            "$otherMember.usr_avatar",
+            "$groupAvatars"
+          ]
         },
-        {
-            $sort: {
-                'last_message.createdAt': -1
-            }
-        },
-        {
-            $project: {
-                room_id: 1,
-                room_type: 1,
-                last_message: {
-                    msg_content: 1,
-                    createdAt: 1
-                },
-                display_name: {
-                    $cond: [
-                        { $eq: ['$room_type', 'private'] },
-                        '$display.usr_fullname',
-                        '$display.room_name'
-                    ]
-                },
-                display_avatar: {
-                    $cond: [
-                        { $eq: ['$room_type', 'private'] },
-                        '$display.usr_avatar',
-                        '$display.avatars'
-                    ]
-                }
-            }
-        },
-        {
-            $lookup: {
-                from: 'messageevents',
-                let: {
-                    lastMsgId: '$room_last_messages',
-                    roomId: '$_id'
-                },
-                pipeline: [
-                    {
-                        $match: {
-                            $expr: {
-                                $and: [
-                                    { $eq: ['$event_msgId', '$$lastMsgId'] },
-                                    { $eq: ['$event_senderId', objectId] },
-                                    { $eq: ['$event_type', 'readed'] }
-                                ]
-                            }
-                        }
-                    }
-                ],
-                as: 'read_status'
-            }
-        },
-        {
-            $addFields: {
-                is_read: {
-                    $gt: [{ $size: '$read_status' }, 0]
-                }
-            }
-        }
-    ]);
+        is_read: 1
+      }
+    }
+  ]);
 
-    return rooms;
+  return rooms;
 };
 
 
-export const getRoomById = async (roomId) => {
-     const room = await roomModel
-            .where({ room_id: roomId })
-            .findOne();
 
-        if (!room) {
-            return null;
-        }
-        const messages = await messageMode.find({msg_room: room._id});
+async function findRoomByHalf(half) {
+  const h = escape(half);
+  // Thử nửa đứng TRƯỚC: ^half\.  (có cơ hội dùng index room_id:1)
+  let doc = await roomModel.findOne(
+    { room_type: "private", room_id: new RegExp(`^${h}\\.`) },
+    { _id: 1, room_id: 1, room_type: 1 }
+  ).lean();
+  if (doc) return doc;
 
-        const memberDetails = await roomModel.aggregate([
-            {
-                $match: { _id: room._id }
-            },
-            {
-                $lookup: {
-                    from: 'users',
-                    localField: 'room_members.userId',
-                    foreignField: '_id',
-                    as: 'members'
-                }
-            },
-            {
-                $unwind: '$members'
-            },
-            {
-                $project: {
-                    _id: 0,
-                    userId: '$members._id',
-                    usr_fullname: '$members.usr_fullname',
-                    usr_avatar: '$members.usr_avatar',
-                    role: '$room_members.role'
-                }
-            }
-        ]);
+  // Fallback nửa đứng SAU: \.half$  (khó dùng index nhưng cần có)
+  doc = await roomModel.findOne(
+    { room_type: "private", room_id: new RegExp(`\\.${h}$`) },
+    { _id: 1, room_id: 1, room_type: 1 }
+  ).lean();
 
-        return {
-            room,
-            messages,
-            memberDetails
-        };
+  return doc; // null nếu không có
+}
+export async function findRoomById(roomIdOrHalf) {
+  const s = String(roomIdOrHalf).trim();
+
+  // Nếu là group (không có dấu chấm) → so thẳng
+  if (!s.includes(".")) {
+    // thử group id trước
+    const byGroup = await roomModel.findOne(
+      { room_type: "group", room_id: s },
+      { _id: 1, room_id: 1, room_type: 1 }
+    ).lean();
+    if (byGroup) return byGroup;
+
+    // nếu không phải group, coi như là "một nửa" private
+    return findRoomByHalf(s);
+  }
+
+  // Nếu có dấu chấm → coi như full private id
+  const doc = await roomModel.findOne(
+    { room_type: "private", room_id: s },
+    { _id: 1, room_id: 1, room_type: 1 }
+  ).lean();
+  return doc;
 }

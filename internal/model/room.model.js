@@ -1,15 +1,19 @@
 import { Schema, model } from "mongoose";
+import { randomId } from "../../pkg/utils/index.utils.js";
 const Documents = "Room";
 const Collections = "Rooms";
 const roomSchema = new Schema({
     room_id: {
         type: String,
-        required: true,
-        unique: true,
+          default: () => randomId()
     },
     room_name: {
         type: String,
         default: "Default Room",
+    },
+    room_avatar: {
+        type: String,
+        default: ""
     },
     room_type: {
         type: String,
