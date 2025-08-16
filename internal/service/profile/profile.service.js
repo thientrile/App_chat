@@ -42,3 +42,11 @@ export const listFriends = async (userId) => {
         return omitInfoData({ fields: OmitUser, object: removePrefixFromKeys(friend.toObject(), "usr_") });
     });
 }
+
+export const updateProfileUser = async (userId, data) => {
+    const user = await userModel.findByIdAndUpdate(userId, data, { new: true });
+    if (!user) {
+        throw new Error("User not found");
+    }
+    return removePrefixFromKeys(user.toObject(), "usr_");
+}
