@@ -1,5 +1,5 @@
 import { SuccessReponse } from "../../../pkg/response/success.js";
-import { loginAccount, logoutAccount, refreshToken, registerAccount,  } from "../../service/Account/access.service.js";
+import { loginAccount, logoutAccount, refreshToken, registerAccount } from "../../service/Account/access.service.js";
 import { setFcmToken } from "../../service/Account/key.service.js";
 
 
@@ -11,6 +11,7 @@ const LoginAccount= async (req, res) => {
         metadata: await loginAccount(req.body)
     }).send(res);
 }
+
 const RegisterAccount = async (req, res) => {
     new SuccessReponse({
         message: "Register successfully",
@@ -42,6 +43,12 @@ const SetFirebaseToken = async (req, res) => {
     }).send(res);
 }
 
+const updateAccount = async (req, res) => {
+    new SuccessReponse({
+        message: "Update profile successfully",
+        metadata: await updateProfile(req.decoded.userId, req.body)
+    }).send(res);
+}
 
 export {
     LoginAccount,
@@ -49,4 +56,5 @@ export {
     RegisterAccount,
     RefreshToken,
     LogoutAccount,
+    updateAccount
 }
