@@ -57,7 +57,7 @@ export const socketAuthMiddleware = async (socket, next) => {
     await userOnline(decrypted.userId, socket.id);
     return next();
   } catch (err) {
-    console.error("❌ Socket auth failed:", err.message);
+    console.error("❌ Socket auth failed:", err.stack);
     return next(new AuthFailureError("Unauthorized socket connection"));
   }
 };
