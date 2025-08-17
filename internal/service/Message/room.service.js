@@ -119,7 +119,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         foreignField: "_id",
         as: "sender",
         pipeline: [
-          { $project: { _id: 1, usr_fullname: 1, usr_avatar: 1, usr_slug: 1, usr_status: 1 } }
+          { $project: { _id: 0, usr_fullname: 1, usr_avatar: 1, usr_slug: 1, usr_status: 1, id: "$usr_id" } }
         ]
       }
     },
@@ -164,7 +164,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         content: "$msg_content",
         type: "$msg_type",
         room: "$msg_room",
-        senderId: "$msg_sender",
+        // senderId: "$msg_sender",
         createdAt: 1,
         updatedAt: 1,
         sender: 1,
@@ -184,7 +184,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
   }
 
   // 5) Đảo tăng dần cho UI + ẩn field nội bộ
-  docs.reverse();
+  // docs.reverse();
   docs = docs.map(doc => omitInfoData({ fields: ["_id", "readers"], object: doc }));
 
   return { items: docs, nextCursor };
