@@ -1,4 +1,4 @@
-import { omitInfoData, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
+import { addPrefixToKeys, omitInfoData, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import userModel from "../../model/user.model.js";
 import { OmitUser } from "../../output/user.js";
 import { checkrelationship, getFriendIdsOfUser } from "../../repository/friendship.repo.js";
@@ -34,8 +34,8 @@ export const findUserById = async (Id, userId) => {
     }
 }
 
-export const listFriends = async (userId) => {
-    const userIds = await getFriendIdsOfUser(userId);
+export const listFriends = async (userId, options) => {
+    const userIds = await getFriendIdsOfUser(userId,options);
 
     const friends = await userModel.find({ _id: { $in: userIds } });
     return friends.map(friend => {
@@ -44,7 +44,8 @@ export const listFriends = async (userId) => {
 }
 
 export const updateProfileUser = async (userId, data) => {
-    const user = await userModel.findByIdAndUpdate(userId, data, { new: true });
+    const addPrefix = addPrefixToKeys(data, "usr_");
+    const user = await userModel.findByIdAndUpdate(userId, addPrefix, { new: true });
     if (!user) {
         throw new Error("User not found");
     }

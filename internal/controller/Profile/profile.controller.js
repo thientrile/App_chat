@@ -49,7 +49,7 @@ export const RejectFriendRequest = async (req, res) => {
 export const GetListFriends = async (req, res) => {
     new SuccessReponse({
         message: "List of friends",
-        metadata: await listFriends(req.decoded.userId)
+        metadata: await listFriends(req.decoded.userId, req.query)
     }).send(res);
 }
 

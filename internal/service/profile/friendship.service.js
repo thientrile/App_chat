@@ -2,7 +2,7 @@ import friendshipModel from "../../model/friendships.mode.js";
 import { convertToObjectIdMongoose, omitInfoData, randomId, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import { checkUserExistByUserId, userFindById } from "../../repository/user.repo.js";
 import { OmitUser } from "../../output/user.js";
-import { KeyRedisGroup, KeyRedisFriend } from "../../../pkg/cache/cache.js";
+import { KeyRedisGroup, KeyRedisFriend, KeyRedisRoom } from "../../../pkg/cache/cache.js";
 import { BadRequestError } from "../../../pkg/response/error.js";
 import { sendNotifyForUser } from "../notifycation/notify.service.js";
 import { sAdd } from "../../../pkg/redis/utils.js";
@@ -158,9 +158,7 @@ export const acceptFriendRequest = async (Id, userId) => {
   await sendNotifyForUser(notifData, messageSend);
 
   // Tạo hoặc lấy phòng chat
-  const sortedIds = [senderId, receiverId].sort((a, b) =>
-    a.toString().localeCompare(b.toString())
-  );
+
 
   const room = await createRoomPrivate(userId, Id)
   if (!room) {
@@ -169,9 +167,11 @@ export const acceptFriendRequest = async (Id, userId) => {
 
   // Cập nhật Redis
   await Promise.all([
-    ...sortedIds.map((id) => sAdd(KeyRedisGroup(room.room_id), id)),
+    sAdd(KeyRedisGroup(room.room_id), senderId, receiverId),
     sAdd(KeyRedisFriend(receiverId), senderId),
     sAdd(KeyRedisFriend(senderId), receiverId),
+    sAdd(KeyRedisRoom(senderId), room.room_id),
+    sAdd(KeyRedisRoom(receiverId), room.room_id),
   ]);
 
   return true;

@@ -19,8 +19,9 @@ const userSchema = new Schema({
     usr_email: {
         type: String,
         // required: true,
-        unique: true,
+        unique: [true, 'Email already exists'],
         sparse: true,
+        default: null
     },
     usr_phone: {
         type: String,
@@ -53,4 +54,5 @@ const userSchema = new Schema({
 }, {
     timestamps: true, collection: Collections,
 })
+
 export default model(Documents, userSchema);

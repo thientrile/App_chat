@@ -1,5 +1,5 @@
 import { compare, hash } from "bcrypt";
-import { addPrefixToKeys, convertToObjectIdMongoose, isValidation, omitInfoData,randomId, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
+import { addPrefixToKeys, convertToObjectIdMongoose, expiresIn, isValidation, omitInfoData, randomId, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import userModel from "../../model/user.model.js";
 import { createKeyToken } from "./key.service.js";
 import { AuthFailureError, ForbiddenError, getErrorMessageMongose } from "../../../pkg/response/error.js";
@@ -23,7 +23,7 @@ const registerAccount = async (body) => {
   } else if (isValidation.isPhoneNumber(username)) {
     data.phone = username;
   }
-  data.slug=fullname.replace(" ", "_").toLowerCase() + `_${randomId()}`;
+  data.slug = fullname.replace(" ", "_").toLowerCase() + `_${randomId()}`;
   data.gender = gender;
   const newUser = await userModel.create(addPrefixToKeys(data, "usr_")).catch((err) => {
     throw new ForbiddenError(
@@ -42,7 +42,8 @@ const registerAccount = async (body) => {
   }
   return {
     user: omitInfoData({ fields: OmitUser, object: user }),
-    tokens
+    tokens,
+    expiresIn: expiresIn(7)
   };
 
 }
@@ -65,7 +66,8 @@ const loginAccount = async (payload) => {
   }
   return {
     user: omitInfoData({ fields: OmitUser, object: infor }),
-    tokens
+    tokens,
+    expiresIn: expiresIn(7)
   };
 
 }
@@ -80,12 +82,13 @@ const refreshToken = async (decoded) => {
     throw new AuthFailureError(" Unable to refresh token");
   }
   return {
-    tokens
+    tokens,
+    expiresIn: expiresIn(7)
   };
 }
 const logoutAccount = async (decoded) => {
   await Promise.all([
-     pushToArray(keyRedisLogout(decoded.userId), decoded.sessionId),
+    pushToArray(keyRedisLogout(decoded.userId), decoded.sessionId),
     tkn_deleteOne({ tkn_userId: convertToObjectIdMongoose(decoded.userId), tkn_clientId: decoded.clientId })
   ])
 

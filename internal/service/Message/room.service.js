@@ -1,9 +1,43 @@
+import { Types } from "mongoose";
 import { BadRequestError } from "../../../pkg/response/error.js";
-import { convertToObjectIdMongoose, pairRoomId } from "../../../pkg/utils/index.utils.js";
-import messageMode from "../../model/message.mode.js";
+import { convertToObjectIdMongoose, omitInfoData, pairRoomId } from "../../../pkg/utils/index.utils.js";
+import messageModel from "../../model/message.mode.js";
 import roomModel from "../../model/room.model.js";
-import {  findRoomById, getChatRooms } from "../../repository/room.reop.js";
+import { findRoomById, getChatRooms } from "../../repository/room.reop.js";
 import { userFindById } from "../../repository/user.repo.js";
+import { KeyOnlineSocket } from "../../../pkg/cache/cache.js";
+import { getArray, sCard, sMembers } from "../../../pkg/redis/utils.js";
+
+
+const canViewRoomForUser = async (userId, roomId) => {
+  const uid = convertToObjectIdMongoose(userId);
+
+  // roomId là public id (room_id) => map sang _id
+  const [found, listSocketIo] = await Promise.all([
+    findRoomById(roomId),
+    sMembers(KeyOnlineSocket(userId))
+  ]);
+  if (!found) return { ok: false }; // Room không tồn tại
+  // console.log("🚀 ~ canViewRoomForUser ~ listSocketIo:", listSocketIo)
+  listSocketIo.forEach(socketId => {
+
+   global.IO.in(socketId).socketsJoin(found.room_id)
+  });
+  const rid = found._id;
+
+  // (a) Còn là member?
+  const isMemberNow = await roomModel.exists({ _id: rid, "room_members.userId": uid });
+
+  // (b) Nếu không còn member → đã từng gửi tin trong room?
+  let sentAny = false;
+  if (!isMemberNow) {
+    sentAny = await messageModel.exists({ msg_room: rid, msg_sender: uid });
+  }
+
+  return { ok: !!(isMemberNow || sentAny), roomObjectId: rid, isMemberNow: !!isMemberNow };
+};
+
+
 
 export const getListRooms = async (userId) => {
   return await getChatRooms(userId);
@@ -44,34 +78,43 @@ export const createRoomPrivate = async (userId, usr_id) => {
 
 
 export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null) => {
-  // check room is exist
-  const findRoom = await findRoomById(roomId)
-  if (!findRoom) {
-    throw new BadRequestError("Room not found");
-  }
-  const getRoom= await roomModel.findById(findRoom._id)
-  // check user is member of room
-  const isMember = getRoom.room_members.some(member => member.userId.equals(userId));
-  if (!isMember) {
-    throw new BadRequestError("User is not a member of the room");
+  const uid = convertToObjectIdMongoose(userId);
+
+  // 1) Quyền xem: (a) member hiện tại hoặc (b) từng gửi tin trong room
+  const gate = await canViewRoomForUser(userId, roomId);
+  if (!gate.ok) throw new BadRequestError("Room not found or not allowed");
+  const roomObjId = gate.roomObjectId;
+
+  // 2) Resolve cursor: nhận `msg_id` (public). Nếu đưa `_id` cũng hỗ trợ.
+  let cursorOid = null;
+  if (cursor) {
+    if (Types.ObjectId.isValid(cursor)) {
+      cursorOid = convertToObjectIdMongoose(cursor);
+    } else {
+      const cur = await messageModel.findOne(
+        { msg_room: roomObjId, msg_id: cursor },
+        { _id: 1 }
+      ).lean();
+      if (!cur) throw new BadRequestError("CURSOR_NOT_FOUND");
+      cursorOid = cur._id;
+    }
   }
 
-  //build match
-  const match = { msg_room: getRoom._id, msg_deleted: { $ne: true } };
-  if (cursor) {
-    if (!Types.ObjectId.isValid(cursor)) throw new Error("CURSOR_INVALID");
-    match._id = { $lt: convertToObjectIdMongoose(cursor) }; // lấy về trước cursor (mới → cũ)
-  }
+  // 3) Build match + pagination (keyset theo _id)
+  const match = { msg_room: roomObjId, msg_deleted: { $ne: true } };
+  if (cursorOid) match._id = { $lt: cursorOid };
+
   const realLimit = Math.min(Number(limit) || 50, 100);
+
   const pipeline = [
     { $match: match },
     { $sort: { _id: -1 } },
-    { $limit: realLimit + 1 }, // lấy thừa 1 để tính nextCursor
+    { $limit: realLimit + 1 },
 
     // Join sender
     {
       $lookup: {
-        from: "Users",                    // CHÚ Ý: đúng tên collection bạn set ở schema
+        from: "Users",
         localField: "msg_sender",
         foreignField: "_id",
         as: "sender",
@@ -82,7 +125,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
     },
     { $addFields: { sender: { $first: "$sender" } } },
 
-    // Đếm người đã đọc (readed)
+    // Đếm người đã đọc
     {
       $lookup: {
         from: "MessageEvents",
@@ -94,7 +137,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
               $expr: {
                 $and: [
                   { $eq: ["$event_msgId", "$$mid"] },
-                  { $eq: ["$event_type", "readed"] },
+                  { $eq: ["$event_type", "readed"] }
                 ]
               }
             }
@@ -111,20 +154,17 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
     },
 
     // Tôi đã đọc chưa?
-    {
-      $addFields: {
-        isReadByMe: { $in: [userId, "$readers"] }
-      }
-    },
+    { $addFields: { isReadByMe: { $in: [uid, "$readers"] } } },
 
     // Project gọn
     {
       $project: {
         _id: 1,
-        msg_content: 1,
-        msg_type: 1,
-        msg_room: 1,
-        msg_sender: 1,
+        id: "$msg_id",                 // public message id
+        content: "$msg_content",
+        type: "$msg_type",
+        room: "$msg_room",
+        senderId: "$msg_sender",
         createdAt: 1,
         updatedAt: 1,
         sender: 1,
@@ -133,16 +173,19 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
       }
     }
   ];
-  const docs = await messageMode.aggregate(pipeline);
-  //  Xử lý nextCursor
+
+  let docs = await messageModel.aggregate(pipeline);
+
+  // 4) nextCursor theo _id (ổn định)
   let nextCursor = null;
   if (docs.length > realLimit) {
-    const popped = docs.pop();                 // phần tử thừa
+    const popped = docs.pop();
     nextCursor = String(popped._id);
   }
 
-  // Trả ngược theo thời gian tăng dần cho dễ render (tuỳ bạn)
+  // 5) Đảo tăng dần cho UI + ẩn field nội bộ
   docs.reverse();
+  docs = docs.map(doc => omitInfoData({ fields: ["_id", "readers"], object: doc }));
 
   return { items: docs, nextCursor };
-}
+};

@@ -1,4 +1,6 @@
+import { socketAsyncHandler } from "../../pkg/async/asyncHandler.js";
 import { checkUserIshasOnline } from "../service/Connect/connect.service.js";
+import { sendMessageToRoom } from "../service/Message/message.service.js";
 
 export const chatRoomHandler = (socket, io) => {
   // Khi client yêu cầu tham gia room
@@ -26,22 +28,16 @@ export const chatRoomHandler = (socket, io) => {
   });
 
   // Khi gửi tin nhắn đến room
-  socket.on("room:message", ({ groupId, text }) => {
-     socket.join(groupId);
-    console.log(`💬 [${groupId}] user: ${socket.decoded.userId}: ${text}`);
-    io.to(groupId).emit("room:message", {
-      user: socket.decoded.userId,
-      text,
-      sentAt: new Date().toISOString(),
-    });
+  socket.on("room:message", async (payload, ack) => {
+    await sendMessageToRoom(payload, ack);
   });
 };
 
 
 export const chatHandler = (socket, io) => {
-  socket.on("user_online",async ({id}) => {
-    const isOnline =await checkUserIshasOnline(id)
+  socket.on("user_online", async ({ id }) => {
+    const isOnline = await checkUserIshasOnline(id)
     console.log("🚀 ~ chatHandler ~ isOnline:", isOnline)
-    io.emit("user_online", {id, isOnline});
+    io.emit("user_online", { id, isOnline });
   });
 };

@@ -113,7 +113,9 @@ export const getChatRooms = async (userId) => {
         type: "$room_type",
         last_message: {
           msg_content: "$last_message.msg_content",
-          createdAt: "$last_message.createdAt"
+          createdAt: "$last_message.createdAt",
+          msg_id: "$last_message.msg_id"
+
         },
         name: {
           $cond: [
