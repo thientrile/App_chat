@@ -1,6 +1,7 @@
 import { SuccessReponse } from "../../../pkg/response/success.js";
 import { loginAccount, logoutAccount, refreshToken, registerAccount } from "../../service/Account/access.service.js";
 import { setFcmToken } from "../../service/Account/key.service.js";
+import { updateProfile } from "../Profile/profile.controller.js";
 
 
 
@@ -43,7 +44,7 @@ const SetFirebaseToken = async (req, res) => {
     }).send(res);
 }
 
-const updateAccount = async (req, res) => {
+const UpdateAccount = async (req, res) => {
     new SuccessReponse({
         message: "Update profile successfully",
         metadata: await updateProfile(req.decoded.userId, req.body)
@@ -56,5 +57,5 @@ export {
     RegisterAccount,
     RefreshToken,
     LogoutAccount,
-    updateAccount
+    UpdateAccount
 }
