@@ -93,7 +93,11 @@ const removePrefixFromKeys = (obj, prefix) => {
   return sa < sb ? `${sa}.${sb}` : `${sb}.${sa}`;
 }
 const escape = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const   expiresIn= (day) => {
+  return Date.now() + day * 24 * 60 * 60 * 1000;
+}
 export {
+  expiresIn,
   escape,
   pairRoomId,
   addPrefixToKeys,
