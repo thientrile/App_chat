@@ -3,6 +3,7 @@ import userModel from "../../model/user.model.js";
 import { OmitUser } from "../../output/user.js";
 import { checkrelationship, getFriendIdsOfUser } from "../../repository/friendship.repo.js";
 import { userFindById } from "../../repository/user.repo.js";
+import { getListRoomsGroup } from "../Message/room.service.js";
 
 
 
@@ -50,4 +51,9 @@ export const updateProfileUser = async (userId, data) => {
         throw new Error("User not found");
     }
     return removePrefixFromKeys(user.toObject(), "usr_");
+}
+
+
+export const listGroups = async (userId) => {
+    return await getListRoomsGroup(userId);
 }

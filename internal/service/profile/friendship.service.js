@@ -7,7 +7,7 @@ import { BadRequestError } from "../../../pkg/response/error.js";
 import { sendNotifyForUser } from "../notifycation/notify.service.js";
 import { sAdd } from "../../../pkg/redis/utils.js";
 import roomModel from "../../model/room.model.js";
-import { createRoomPrivate } from "../Message/room.service.js";
+import { createRoomByType } from "../Message/room.service.js";
 export const sendFriendRequestToStranger = async (body) => {
   const { user_send, receiveId, message } = body;
 
@@ -160,7 +160,7 @@ export const acceptFriendRequest = async (Id, userId) => {
   // Tạo hoặc lấy phòng chat
 
 
-  const room = await createRoomPrivate(userId, Id)
+  const room = await createRoomByType(userId, [Id], "private");
   if (!room) {
     throw new BadRequestError("Không thể tạo phòng chat mới");
   }
@@ -197,5 +197,16 @@ export const rejectFriendRequest = async (Id, userId) => {
 }
 
 
+export const listPendingFriendRequests = async (userId, options) => {
+  const { limit, offset } = options;
+  const pendingRequests = await friendshipModel.find({
+    frp_userId2: convertToObjectIdMongoose(userId),
+    frp_status: "pending"
+  })
+  .skip(offset)
+  .limit(limit);
+
+  return pendingRequests;
+}
 
 
