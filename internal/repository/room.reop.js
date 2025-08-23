@@ -1,39 +1,11 @@
 import { convertToObjectIdMongoose, escape } from '../../pkg/utils/index.utils.js';
 import roomModel from '../model/room.model.js';
 
-
 export const getChatRooms = async (userId) => {
   const objectId = convertToObjectIdMongoose(userId);
 
   const rooms = await roomModel.aggregate([
-    // 1) Các phòng mà user đang là member
-    { $match: { "room_members.userId": objectId } },
-
-    // 2) Union thêm các phòng user từng gửi tin nhắn
-    {
-      $unionWith: {
-        coll: "Rooms", // đúng tên collection bạn set trong schema
-        pipeline: [
-          {
-            $lookup: {
-              from: "Messages",
-              let: { uid: objectId },
-              pipeline: [
-                { $match: { $expr: { $eq: ["$msg_sender", "$$uid"] } } }
-              ],
-              as: "sent_msgs"
-            }
-          },
-          { $match: { "sent_msgs.0": { $exists: true } } }
-        ]
-      }
-    },
-
-    // 3) Loại trùng
-    { $group: { _id: "$_id", doc: { $first: "$$ROOT" } } },
-    { $replaceRoot: { newRoot: "$doc" } },
-
-    // 4) Join last_message
+    // 1) Với mỗi room, lookup last_message
     {
       $lookup: {
         from: "Messages",
@@ -44,20 +16,50 @@ export const getChatRooms = async (userId) => {
     },
     { $unwind: { path: "$last_message", preserveNullAndEmptyArrays: true } },
 
-    // 5) Join members
+    // 2) Với mỗi room, lookup members (để hiển thị tên/ảnh)
     {
       $lookup: {
         from: "Users",
         localField: "room_members.userId",
         foreignField: "_id",
-        as: "members",
+        pipeline: [{ $project: { _id: 1, usr_id: 1, usr_fullname: 1, usr_avatar: 1 } }],
+        as: "members"
+      }
+    },
+
+    // 3) Với mỗi room, kiểm tra user đã từng gửi message trong CHÍNH room này
+    {
+      $lookup: {
+        from: "Messages",
+        let: { rid: "$_id", uid: objectId },
         pipeline: [
-          { $project: { _id: 1, usr_id: 1, usr_fullname: 1, usr_avatar: 1 } }
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$msg_roomId", "$$rid"] },   // RÀNG BUỘC THEO ROOM HIỆN TẠI
+                  { $eq: ["$msg_sender", "$$uid"] }
+                ]
+              }
+            }
+          },
+          { $limit: 1 } // chỉ cần biết có tồn tại là đủ
+        ],
+        as: "sent_by_me"
+      }
+    },
+
+    // 4) Giữ lại room nếu user là member HOẶC đã từng gửi tin trong room đó
+    {
+      $match: {
+        $or: [
+          { "room_members.userId": objectId },
+          { "sent_by_me.0": { $exists: true } }
         ]
       }
     },
 
-    // 6) Tách "otherMember" cho private + gom avatar group
+    // 5) Tính field hiển thị
     {
       $addFields: {
         otherMember: {
@@ -73,7 +75,7 @@ export const getChatRooms = async (userId) => {
       }
     },
 
-    // 7) Check read-status của last message (đặt TRƯỚC $project để còn field)
+    // 6) Check read-status của last_message
     {
       $lookup: {
         from: "MessageEvents",
@@ -96,10 +98,10 @@ export const getChatRooms = async (userId) => {
     },
     { $addFields: { is_read: { $gt: [{ $size: "$read_status" }, 0] } } },
 
-    // 8) Sort theo thời gian last_message
+    // 7) Sort theo thời gian last_message
     { $sort: { "last_message.createdAt": -1 } },
 
-    // 9) Project KẾT QUẢ — id: private -> usr_id của otherMember; group -> room_id
+    // 8) Project kết quả (id hiển thị tuỳ loại phòng)
     {
       $project: {
         _id: 0,
@@ -115,7 +117,6 @@ export const getChatRooms = async (userId) => {
           msg_content: "$last_message.msg_content",
           createdAt: "$last_message.createdAt",
           msg_id: "$last_message.msg_id"
-
         },
         name: {
           $cond: [
@@ -138,6 +139,7 @@ export const getChatRooms = async (userId) => {
 
   return rooms;
 };
+
 
 
 

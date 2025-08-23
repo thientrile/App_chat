@@ -10,16 +10,15 @@ import { sendNotify, sendNotifyForUser } from "../notifycation/notify.service.js
 
 export const sendMessageToRoom = async (userId, payload) => {
     const { roomId, content, type } = payload
-    console.log(userId);
-    console.log(payload);
+
     //find roomId
     const room = await findRoomById(roomId)
     if (!room) {
         throw new BadRequestError("Room not found");
     }
+    console.log("🚀 ~ sendMessageToRoom ~ room:", room.room_id)
     const sender = await userModel.findById(userId).select("usr_fullname usr_avatar usr_slug status usr_id -_id").lean();
     const from = room.room_type === "private" ? sender.usr_fullname : room.room_name;
-    console.log("🚀 ~ sendMessageToRoom ~ members:", room)
     const members = room.room_members.map(m => m.userId.toString())
 
     const messageSend = {
@@ -43,7 +42,6 @@ export const sendMessageToRoom = async (userId, payload) => {
     }
     const newMsg = (await messageMode.create(data))
     const removePrefix = removePrefixFromKeys(newMsg.toObject(), "msg_")
-    console.log("🚀 ~ sendMessageToRoom ~ newMsg:", newMsg)
     if (!newMsg) {
         throw new BadRequestError("Message not created");
     }
@@ -70,3 +68,6 @@ export const sendMessageToRoom = async (userId, payload) => {
         message
     };
 }
+
+
+

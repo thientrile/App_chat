@@ -31,17 +31,17 @@ export const pushMessage = async (tokens, messageData) => {
     };
 
     const response = await admin.messaging().sendEachForMulticast(message);
-console.log(
-  JSON.stringify(
-    response.responses.map((r) => ({
-      success: r.success,
-      error: r.error ? r.error.message : null,
-      code: r.error ? r.error.code : null,
-    })),
-    null,
-    2
-  )
-);
+    console.log(
+      JSON.stringify(
+        response.responses.map((r) => ({
+          success: r.success,
+          error: r.error ? r.error.message : null,
+          code: r.error ? r.error.code : null,
+        })),
+        null,
+        2
+      )
+    );
     return {
       success: response.responses.filter(r => r.success).length,
       failure: response.responses.filter(r => !r.success).length,

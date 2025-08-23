@@ -1,5 +1,6 @@
 import { SuccessReponse } from "../../../pkg/response/success.js"
 import { SocketSuccessResponse } from "../../../pkg/socketio/socketSuccess.js"
+import { findRoomById } from "../../repository/room.reop.js"
 import { sendMessageToRoom } from "../../service/Message/message.service.js"
 import { getListRooms, getRoomMessages } from "../../service/Message/room.service.js"
 
@@ -21,9 +22,12 @@ export const GetRoomMessages = async (req, res) => {
 
 
 export const SktSendMsg = async ({ socket, payload }) => {
+    const room = await findRoomById(payload.roomId)
+    console.log("🚀 ~ chatRoomHandler ~ room:", room.room_id)
+    socket.join(room.room_id);
     SocketSuccessResponse.ok(
         {
             metadata: await sendMessageToRoom(socket.decoded.userId, payload),
         }
-    ).emit(socket,"room:message:received", { userId: socket.decoded.userId, payload });
+    ).to(socket, room.room_id,"room:message:received").emit(socket, "room:sended:message");
 } 
