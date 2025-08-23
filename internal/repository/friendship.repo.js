@@ -23,7 +23,7 @@ const escapeRegExp = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
  * @returns {Promise<string[]>} friendIds (ObjectId dưới dạng string)
  */
 export const getFriendIdsOfUser = async (userId, options = {}) => {
-  const { q, limit = 1000 } = options;
+  const { q, limit = 1000, offset = 0 } = options;
   const objectId = convertToObjectIdMongoose(userId);
 
   // Tạo bộ lọc tìm theo tên/điện thoại nếu có q
@@ -73,6 +73,7 @@ export const getFriendIdsOfUser = async (userId, options = {}) => {
 
   pipeline.push(
     { $limit: Math.max(1, Math.min(+limit || 1000, 5000)) },
+    { $skip: offset || 0 },
     { $project: { _id: 0, friendId: 1 } }
   );
 

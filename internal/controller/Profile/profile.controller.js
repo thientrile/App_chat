@@ -13,10 +13,10 @@ export const SendFriendRequest = async (req, res) => {
     }).send(res);
 }
 export const FindUserByPhoneNumber = async (req, res) => {
-    const phoneNumber = req.params.phone;
+    const {phone, type} = req.query;
     new SuccessReponse({
         message: "User found",
-        metadata: await findUserByPhoneNumber(phoneNumber, req.decoded.userId)
+        metadata: await findUserByPhoneNumber(phone, req.decoded.userId, type)
     }).send(res);
 }
 

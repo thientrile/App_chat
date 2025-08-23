@@ -4,7 +4,7 @@ import { convertToObjectIdMongoose, omitInfoData, pairRoomId } from "../../../pk
 import messageModel from "../../model/message.mode.js";
 import roomModel from "../../model/room.model.js";
 import { findRoomById, getChatRooms } from "../../repository/room.reop.js";
-import { userFindById } from "../../repository/user.repo.js";
+import { checkUserExistByUserId, userFindById } from "../../repository/user.repo.js";
 import { KeyOnlineSocket } from "../../../pkg/cache/cache.js";
 import { getArray, sCard, sMembers } from "../../../pkg/redis/utils.js";
 
@@ -43,8 +43,8 @@ export const getListRooms = async (userId) => {
   return await getChatRooms(userId);
 }
 
-export const getListRoomsGroup = async (userId) => {
-  return await getChatRooms(userId, 'group');
+export const getListRoomsGroup = async (userId, options) => {
+  return await getChatRooms(userId, 'group', options);
 }
 
 
