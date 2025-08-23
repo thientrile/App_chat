@@ -1,4 +1,5 @@
-import { socketAsyncHandler } from "../../pkg/async/asyncHandler.js";
+import { socketAsync } from "../../pkg/socketio/socket-async.js";
+import { SktSendMsg } from "../controller/Message/message.controller.js";
 import { checkUserIshasOnline } from "../service/Connect/connect.service.js";
 import { sendMessageToRoom } from "../service/Message/message.service.js";
 
@@ -28,9 +29,9 @@ export const chatRoomHandler = (socket, io) => {
   });
 
   // Khi gửi tin nhắn đến room
-  socket.on("room:message", async (payload, ack) => {
-    await sendMessageToRoom(payload, ack);
-  });
+  socket.on("room:send:message", socketAsync(socket, async ({ payload }) => {
+    await SktSendMsg({ socket, payload });
+  }));
 };
 
 

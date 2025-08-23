@@ -123,7 +123,17 @@ const getErrorMessageMongose = (error, message = "") => {
   }
   return message;
 };
+
+function serializeError(err) {
+  if (err?.name === 'AppError') {
+    return { ok: false, error: { code: err.code, message: err.message, details: err.details } };
+  }
+  return { ok: false, error: { code: 'INTERNAL_ERROR', message: 'Something went wrong' } };
+}
+
 export {
+
+  serializeError,
   getErrorMessageMongose,
   ConflictRequestError,
   BadRequestError,

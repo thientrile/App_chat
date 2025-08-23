@@ -26,7 +26,7 @@ import _ from "lodash";
 const convertToObjectIdMongoose = (id) => new Types.ObjectId(id);
 const convertToUUIDMongoose = (id) => new Types.UUID(id);
 const randomId = () => {
-  return `${Date.now()}${Math.floor(Math.random() * 999)}`;
+  return `${Date.now()}${Math.floor(Math.random() * 999999999)}`;
 };
 const isValidation = {
   /**
