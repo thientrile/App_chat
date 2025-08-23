@@ -215,3 +215,132 @@ export async function findRoomById(roomIdOrHalf) {
   ).lean();
   return doc;
 }
+
+// Function mới: Lấy thông tin chi tiết phòng với last message và trạng thái đọc
+export const getRoomInfoById = async (roomId, userId) => {
+  const objectId = convertToObjectIdMongoose(userId);
+  
+  const result = await roomModel.aggregate([
+    // 1) Tìm phòng theo room_id
+    { $match: { room_id: roomId } },
+
+    // 2) Join với last_message
+    {
+      $lookup: {
+        from: "Messages",
+        localField: "room_last_messages",
+        foreignField: "_id",
+        as: "last_message"
+      }
+    },
+    { $unwind: { path: "$last_message", preserveNullAndEmptyArrays: true } },
+
+    // 3) Join với thông tin members
+    {
+      $lookup: {
+        from: "Users",
+        localField: "room_members.userId",
+        foreignField: "_id",
+        pipeline: [{ $project: { _id: 1, usr_id: 1, usr_fullname: 1, usr_avatar: 1 } }],
+        as: "members"
+      }
+    },
+
+    // 4) Tìm member khác (không phải current user) cho private chat
+    {
+      $addFields: {
+        otherMember: {
+          $first: {
+            $filter: {
+              input: "$members",
+              as: "m",
+              cond: { $ne: ["$$m._id", objectId] }
+            }
+          }
+        }
+      }
+    },
+
+    // 5) Kiểm tra trạng thái đã đọc của user hiện tại
+    {
+      $lookup: {
+        from: "MessageEvents",
+        let: { lastMsgId: "$room_last_messages", me: objectId },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$event_msgId", "$$lastMsgId"] },
+                  { $eq: ["$event_senderId", "$$me"] },
+                  { $eq: ["$event_type", "readed"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "read_status"
+      }
+    },
+
+    // 6) Project kết quả theo format yêu cầu
+    {
+      $project: {
+        _id: 0,
+        id: {
+          $cond: [
+            { $eq: ["$room_type", "private"] },
+            "$otherMember.usr_id",
+            "$room_id"
+          ]
+        },
+        type: "$room_type",
+        name: {
+          $cond: [
+            { $eq: ["$room_type", "private"] },
+            "$otherMember.usr_fullname",
+            "$room_name"
+          ]
+        },
+        avatar: {
+          $cond: [
+            { $eq: ["$room_type", "private"] },
+            {
+              $ifNull: [
+                "$otherMember.usr_avatar",
+                {
+                  $concat: [
+                    "https://ui-avatars.com/api/?name=",
+                    { $replaceAll: { input: "$otherMember.usr_fullname", find: " ", replacement: "-" } },
+                    "&background=random"
+                  ]
+                }
+              ]
+            },
+            "$room_avatar"
+          ]
+        },
+        last_message: {
+          $cond: [
+            { $ne: ["$last_message", null] },
+            {
+              msg_content: "$last_message.msg_content",
+              createdAt: "$last_message.createdAt",
+              msg_id: "$last_message.msg_id"
+            },
+            null
+          ]
+        },
+        is_read: {
+          $cond: [
+            { $ne: ["$last_message", null] },
+            { $gt: [{ $size: "$read_status" }, 0] },
+            true
+          ]
+        }
+      }
+    }
+  ]);
+
+  return result.length > 0 ? result[0] : null;
+};

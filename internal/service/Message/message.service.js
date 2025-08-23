@@ -3,7 +3,7 @@ import { convertToObjectIdMongoose, omitInfoData, removePrefixFromKeys } from ".
 import messageMode from "../../model/message.mode.js";
 import roomModel from "../../model/room.model.js";
 import userModel from "../../model/user.model.js";
-import { findRoomById } from "../../repository/room.reop.js";
+import { findRoomById, getRoomInfoById } from "../../repository/room.reop.js";
 import { outputMessage } from "../../validation/Message.js";
 import { sendNotify, sendNotifyForUser } from "../notifycation/notify.service.js";
 
@@ -16,21 +16,17 @@ export const sendMessageToRoom = async (userId, payload) => {
     if (!room) {
         throw new BadRequestError("Room not found");
     }
-    console.log("🚀 ~ sendMessageToRoom ~ room:", room.room_id)
     const sender = await userModel.findById(userId).select("usr_fullname usr_avatar usr_slug status usr_id -_id").lean();
     const from = room.room_type === "private" ? sender.usr_fullname : room.room_name;
     const members = room.room_members.map(m => m.userId.toString())
-
+    const roomInfo = await getRoomInfoById(room.room_id, userId)
     const messageSend = {
         title: `~${from} Tin nhắn mới`,
         body: content,
         data: {
             screen: "Main",
-
-            params: JSON.stringify({
-                name: "Chats",
-                id: roomId
-            }),
+            subScreen: "Chats",
+            params: JSON.stringify(roomInfo),
         },
     };
 
