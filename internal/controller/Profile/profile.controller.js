@@ -1,6 +1,7 @@
 import { SuccessReponse } from "../../../pkg/response/success.js";
-import { acceptFriendRequest, rejectFriendRequest, sendFriendRequestToStranger } from "../../service/profile/friendship.service.js";
-import { findUserById, findUserByPhoneNumber, listFriends, updateProfileUser } from "../../service/profile/profile.service.js";
+import { createRoomByType } from "../../service/Message/room.service.js";
+import { acceptFriendRequest, rejectFriendRequest, sendFriendRequestToStranger, listPendingFriendRequests } from "../../service/profile/friendship.service.js";
+import { findUserById, findUserByPhoneNumber, listFriends, updateProfileUser, listGroups } from "../../service/profile/profile.service.js";
 
 export const SendFriendRequest = async (req, res) => {
     new SuccessReponse({
@@ -12,10 +13,10 @@ export const SendFriendRequest = async (req, res) => {
     }).send(res);
 }
 export const FindUserByPhoneNumber = async (req, res) => {
-    const phoneNumber = req.params.phone;
+    const {phone, type} = req.query;
     new SuccessReponse({
         message: "User found",
-        metadata: await findUserByPhoneNumber(phoneNumber, req.decoded.userId)
+        metadata: await findUserByPhoneNumber(phone, req.decoded.userId, type)
     }).send(res);
 }
 
@@ -36,6 +37,8 @@ export const AcceptFriendRequest = async (req, res) => {
         metadata
     }).send(res);
 }
+
+
 export const RejectFriendRequest = async (req, res) => {
     const Id = req.params.id;
     const metadata = await rejectFriendRequest(Id, req.decoded.userId);
@@ -58,5 +61,28 @@ export const updateProfile = async (req, res) => {
     new SuccessReponse({
         message: "Update profile successfully",
         metadata: await updateProfileUser(req.decoded.userId, req.body)
+    }).send(res);
+}
+
+
+
+export const getListGroups = async (req, res) => {
+    new SuccessReponse({
+        message: "List of groups",
+        metadata: await listGroups(req.decoded.userId, req.query)
+    }).send(res);
+}
+
+export const getListPendingFriendRequests = async (req, res) => {
+    new SuccessReponse({
+        message: "List of pending friend requests",
+        metadata: await listPendingFriendRequests(req.decoded.userId, req.query)
+    }).send(res);
+}
+
+export const createGroup = async (req, res) => {
+    new SuccessReponse({
+        message: "Group created successfully",
+        metadata: await createRoomByType(req.decoded.userId, req.body.userIds, "group")
     }).send(res);
 }

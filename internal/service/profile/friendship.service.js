@@ -7,7 +7,7 @@ import { BadRequestError } from "../../../pkg/response/error.js";
 import { sendNotifyForUser } from "../notifycation/notify.service.js";
 import { sAdd } from "../../../pkg/redis/utils.js";
 import roomModel from "../../model/room.model.js";
-import { createRoomPrivate } from "../Message/room.service.js";
+import { createRoomByType } from "../Message/room.service.js";
 export const sendFriendRequestToStranger = async (body) => {
   const { user_send, receiveId, message } = body;
 
@@ -15,7 +15,7 @@ export const sendFriendRequestToStranger = async (body) => {
 
 
   // Kiểm tra người nhận
-  const receiver = await userFindById(receiveId);
+  const receiver = await userFindById(String(receiveId));
   if (!receiver) {
     throw new BadRequestError("Người nhận không tồn tại");
   }
@@ -74,24 +74,23 @@ export const sendFriendRequestToStranger = async (body) => {
     frp_status: "pending",
   };
 
-  // Gửi thông báo và tạo/cập nhật mối quan hệ
-  const [notification] = await Promise.all([
-    sendNotifyForUser(notifData, messageSend),
-    friendshipModel.findOneAndUpdate(
-      {
-        $or: [
-          { frp_userId1: senderId, frp_userId2: receiverId },
-          { frp_userId1: receiverId, frp_userId2: senderId },
-        ],
-      },
-      friendshipData,
-      { upsert: true, new: true }
-    ),
-  ]);
-
-  if (!notification) {
-    throw new BadRequestError("Không thể gửi lời mời kết bạn");
+  try {
+    await sendNotifyForUser(notifData, messageSend);
+  } catch (error) {
+    console.error("Error sending notification:", error);
   }
+
+  // Gửi thông báo và tạo/cập nhật mối quan hệ
+  await friendshipModel.findOneAndUpdate(
+    {
+      $or: [
+        { frp_userId1: senderId, frp_userId2: receiverId },
+        { frp_userId1: receiverId, frp_userId2: senderId },
+      ],
+    },
+    friendshipData,
+    { upsert: true, new: true }
+  );
 
   return true;
 };
@@ -107,6 +106,12 @@ export const acceptFriendRequest = async (Id, userId) => {
   const receiverId = convertToObjectIdMongoose(userId);
   if (String(senderId) === String(receiverId)) {
     throw new BadRequestError("Không thể tự gửi hoặc chấp nhận lời mời kết bạn chính mình");
+  }
+
+  // Tạo hoặc lấy phòng chat
+  const room = await createRoomByType(userId, [Id], "private");
+  if (!room) {
+    throw new BadRequestError("Không thể tạo phòng chat mới");
   }
   // Cập nhật trạng thái mối quan hệ
   const friendship = await friendshipModel.findOneAndUpdate(
@@ -131,38 +136,33 @@ export const acceptFriendRequest = async (Id, userId) => {
     throw new BadRequestError("Lời mời không tồn tại hoặc đã được xử lý");
   }
 
-  // Gửi thông báo đến người gửi
-  const notifData = {
-    notif_id: randomId(),
-    notif_user_sender: senderId,
-    notif_user_receive: receiverId,
-    notif_type: "friend_request",
-    notif_message: `${sender.usr_name} đã chấp nhận lời mời kết bạn của bạn`,
-    notif_status: "accepted",
-  };
+  try {
+    // Gửi thông báo đến người gửi
+    const notifData = {
+      notif_id: randomId(),
+      notif_user_sender: senderId,
+      notif_user_receive: receiverId,
+      notif_type: "friend_request",
+      notif_message: `${sender.usr_name} đã chấp nhận lời mời kết bạn của bạn`,
+      notif_status: "accepted",
+    };
 
-  const cleanSender = removePrefixFromKeys(sender, "usr_");
+    const cleanSender = removePrefixFromKeys(sender, "usr_");
 
-  const messageSend = {
-    title: "Lời mời Kết bạn",
-    body: `${sender.usr_fullname} đã chấp nhận lời mời kết bạn của bạn`,
-    data: {
-      screen: "InfoScreen",
-      params: JSON.stringify({
-        user: omitInfoData({ fields: OmitUser, object: cleanSender }),
-        friendship: "accepted",
-      }),
-    },
-  };
-
-  await sendNotifyForUser(notifData, messageSend);
-
-  // Tạo hoặc lấy phòng chat
-
-
-  const room = await createRoomPrivate(userId, Id)
-  if (!room) {
-    throw new BadRequestError("Không thể tạo phòng chat mới");
+    const messageSend = {
+      title: "Lời mời Kết bạn",
+      body: `${sender.usr_fullname} đã chấp nhận lời mời kết bạn của bạn`,
+      data: {
+        screen: "InfoScreen",
+        params: JSON.stringify({
+          user: omitInfoData({ fields: OmitUser, object: cleanSender }),
+          friendship: "accepted",
+        }),
+      },
+    };
+    await sendNotifyForUser(notifData, messageSend);
+  } catch (error) {
+    console.error("Error sending notification:", error);
   }
 
   // Cập nhật Redis
@@ -197,5 +197,33 @@ export const rejectFriendRequest = async (Id, userId) => {
 }
 
 
+export const listPendingFriendRequests = async (userId, options) => {
+  const { limit, offset } = options;
+  // Lấy danh sách lời mời kết bạn đang chờ
+  const pendingRequests = await friendshipModel.aggregate([
+    { $match: { frp_userId2: convertToObjectIdMongoose(userId), frp_status: "pending" } },
+    {
+      $lookup: {
+        from: "Users", // đúng tên collection bạn set trong schema
+        localField: "frp_userId1",
+        foreignField: "_id",
+        pipeline: [
+          { $project: { _id: 1, usr_id: 1, usr_fullname: 1, usr_avatar: 1, usr_phone: 1 } }
+        ],
+        as: "user"
+      }
+    },
+    {
+      $skip: offset ?? 0
+    },
+    {
+      $limit: limit ?? 20
+    }
+  ]);
+
+  return pendingRequests.map(res => {
+    return { ...removePrefixFromKeys(res.user[0], "usr_"), friendship: removePrefixFromKeys(res, "frp_") };
+  });
+}
 
 

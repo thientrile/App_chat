@@ -1,11 +1,39 @@
 import { convertToObjectIdMongoose, escape } from '../../pkg/utils/index.utils.js';
 import roomModel from '../model/room.model.js';
 
-export const getChatRooms = async (userId) => {
-  const objectId = convertToObjectIdMongoose(userId);
 
+export const getChatRooms = async (userId, room_type = 'private', options = {}) => {
+  const objectId = convertToObjectIdMongoose(userId);
+  const { offset, limit } = options;
   const rooms = await roomModel.aggregate([
-    // 1) Với mỗi room, lookup last_message
+    // 1) Các phòng mà user đang là member
+    { $match: { "room_members.userId": objectId, room_type } },
+
+    // 2) Union thêm các phòng user từng gửi tin nhắn
+    {
+      $unionWith: {
+        coll: "Rooms", // đúng tên collection bạn set trong schema
+        pipeline: [
+          {
+            $lookup: {
+              from: "Messages",
+              let: { uid: objectId },
+              pipeline: [
+                { $match: { $expr: { $eq: ["$msg_sender", "$$uid"] } } }
+              ],
+              as: "sent_msgs"
+            }
+          },
+          { $match: { "sent_msgs.0": { $exists: true } } }
+        ]
+      }
+    },
+
+    // 3) Loại trùng
+    { $group: { _id: "$_id", doc: { $first: "$$ROOT" } } },
+    { $replaceRoot: { newRoot: "$doc" } },
+
+    // 4) Join last_message
     {
       $lookup: {
         from: "Messages",
@@ -131,10 +159,13 @@ export const getChatRooms = async (userId) => {
             "$otherMember.usr_avatar",
             "$groupAvatars"
           ]
+          
         },
         is_read: 1
       }
-    }
+    },
+    { $skip: offset || 0 },
+    { $limit: limit || 1000 }
   ]);
 
   return rooms;

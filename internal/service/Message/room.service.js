@@ -4,7 +4,7 @@ import { convertToObjectIdMongoose, omitInfoData, pairRoomId } from "../../../pk
 import messageModel from "../../model/message.mode.js";
 import roomModel from "../../model/room.model.js";
 import { findRoomById, getChatRooms } from "../../repository/room.reop.js";
-import { userFindById } from "../../repository/user.repo.js";
+import { checkUserExistByUserId, userFindById } from "../../repository/user.repo.js";
 import { KeyOnlineSocket } from "../../../pkg/cache/cache.js";
 import { getArray, sCard, sMembers } from "../../../pkg/redis/utils.js";
 
@@ -43,36 +43,56 @@ export const getListRooms = async (userId) => {
   return await getChatRooms(userId);
 }
 
+export const getListRoomsGroup = async (userId, options) => {
+  return await getChatRooms(userId, 'group', options);
+}
 
-export const createRoomPrivate = async (userId, usr_id) => {
-  const findUserReciver = await userFindById(usr_id);
-  const findUserSender = await checkUserExistByUserId(userId);
 
-  if (!findUserReciver) throw new BadRequestError("Receiver not found");
-  if (!findUserSender) throw new BadRequestError("Sender not found");
-  const roomId = pairRoomId(findUserSender._id, findUserReciver._id);
-  // Tạo hoặc lấy phòng chat
-  const sortedIds = [userId, findUserReciver._id].sort((a, b) =>
-    a.toString().localeCompare(b.toString())
-  );
-
+export const createRoomByType = async (userId, usr_ids, room_type = 'private') => {
+  let sortedIds = [];
+  const data = {
+    room_id: null,
+    room_type,
+    room_members: [],
+  };
+  if (room_type == 'private') {
+    const findUserReciver = await userFindById(usr_ids[0]);
+    const findUserSender = await checkUserExistByUserId(userId);
+    if (!findUserReciver) throw new BadRequestError("Receiver not found");
+    if (!findUserSender) throw new BadRequestError("Sender not found");
+    data.room_id = pairRoomId(findUserSender._id, findUserReciver._id);
+    sortedIds = [findUserSender._id, findUserReciver._id].sort((a, b) =>
+      a.toString().localeCompare(b.toString())
+    );
+    data.room_members = sortedIds.map((id) => ({
+      userId: id,
+      role: "member",
+    }));
+  } else {
+     delete data.room_id; // cho tự gen
+     const users = await Promise.all(usr_ids.map(id => userFindById(id)));
+     sortedIds = [userId, ...users.map(user => user._id)].sort((a, b) =>
+       a.toString().localeCompare(b.toString())
+     );
+     data.room_members = sortedIds.map(id => ({
+       userId: id,
+       role: "member",
+     }));
+  }
+  if (room_type === "group") {
+    const room = await roomModel.create(data);
+    return { id: room._id };
+  }
   let room = await roomModel.findOne({
-    room_type: "private",
+    room_type: data.room_type,
     "room_members.userId": { $all: sortedIds },
     room_members: { $size: 2 },
   });
   if (!room) {
-    room = await roomModel.create({
-      room_id: roomId,
-      room_type: "private",
-      room_members: sortedIds.map((id) => ({
-        userId: id,
-        role: "member",
-      })),
-    });
+    room = await roomModel.create(data);
   }
   return {
-    id: roomId,
+    id: room._id,
   }
 }
 
