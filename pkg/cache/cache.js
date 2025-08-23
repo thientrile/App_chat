@@ -12,17 +12,24 @@ export const keyRedisLogout = (userId) => {
 export const KeyRedisGroup = (groupId) => {
   return `group::${groupId}::members`;
 };
-
+export const KeyRedisRoom = (userId) => {
+  return `room::${userId}`;
+};
 export const KeyRedisFriend = (userId) => {
   return `list::${userId}::friends`;
 };
-
+export const KeyOnlineSocket = (userId) => {
+  return `${Consts.ONLINE_SOCKET_KEY}:${userId}`
+}
+export const KeyOnlineUsers = () => {
+  return Consts.ONLINE_USERS_KEY
+}
 // redis socket
 // when user online
 export const userOnline = async (userId, socketId) => {
   Logger.info(`User ${userId} is online with socket ${socketId}`);
-  await sAdd(Consts.ONLINE_USERS_KEY, userId);
-  await sAdd(`${Consts.ONLINE_SOCKET_KEY}:${userId}`, socketId);
+  await sAdd(KeyOnlineUsers(), userId);
+  await sAdd(KeyOnlineSocket(userId), socketId);
 };
 
 /**
@@ -39,7 +46,7 @@ export const userOffline = async (userId, socketId) => {
 };
 
 
-export  const checkOnlineUser= async (userId) => {
+export const checkOnlineUser = async (userId) => {
   const isOnline = await sIsMember(Consts.ONLINE_USERS_KEY, userId);
   return isOnline;
 }

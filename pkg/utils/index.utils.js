@@ -26,7 +26,7 @@ import _ from "lodash";
 const convertToObjectIdMongoose = (id) => new Types.ObjectId(id);
 const convertToUUIDMongoose = (id) => new Types.UUID(id);
 const randomId = () => {
-  return `${Date.now()}${Math.floor(Math.random() * 999)}`;
+  return `${Date.now()}${Math.floor(Math.random() * 999999999)}`;
 };
 const isValidation = {
   /**
@@ -93,7 +93,11 @@ const removePrefixFromKeys = (obj, prefix) => {
   return sa < sb ? `${sa}.${sb}` : `${sb}.${sa}`;
 }
 const escape = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const   expiresIn= (day) => {
+  return Date.now() + day * 24 * 60 * 60 * 1000;
+}
 export {
+  expiresIn,
   escape,
   pairRoomId,
   addPrefixToKeys,

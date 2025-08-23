@@ -2,12 +2,12 @@ import { convertToObjectIdMongoose, escape } from '../../pkg/utils/index.utils.j
 import roomModel from '../model/room.model.js';
 
 
-export const getChatRooms = async (userId) => {
+export const getChatRooms = async (userId, room_type = 'private', options = {}) => {
   const objectId = convertToObjectIdMongoose(userId);
-
+  const { offset, limit } = options;
   const rooms = await roomModel.aggregate([
     // 1) Các phòng mà user đang là member
-    { $match: { "room_members.userId": objectId } },
+    { $match: { "room_members.userId": objectId, room_type } },
 
     // 2) Union thêm các phòng user từng gửi tin nhắn
     {
@@ -113,7 +113,9 @@ export const getChatRooms = async (userId) => {
         type: "$room_type",
         last_message: {
           msg_content: "$last_message.msg_content",
-          createdAt: "$last_message.createdAt"
+          createdAt: "$last_message.createdAt",
+          msg_id: "$last_message.msg_id"
+
         },
         name: {
           $cond: [
@@ -128,10 +130,13 @@ export const getChatRooms = async (userId) => {
             "$otherMember.usr_avatar",
             "$groupAvatars"
           ]
+          
         },
         is_read: 1
       }
-    }
+    },
+    { $skip: offset || 0 },
+    { $limit: limit || 1000 }
   ]);
 
   return rooms;

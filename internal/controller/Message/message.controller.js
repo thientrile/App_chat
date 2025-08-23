@@ -1,4 +1,6 @@
 import { SuccessReponse } from "../../../pkg/response/success.js"
+import { SocketSuccessResponse } from "../../../pkg/socketio/socketSuccess.js"
+import { sendMessageToRoom } from "../../service/Message/message.service.js"
 import { getListRooms, getRoomMessages } from "../../service/Message/room.service.js"
 
 
@@ -16,3 +18,12 @@ export const GetRoomMessages = async (req, res) => {
         metadata: await getRoomMessages(req.decoded.userId, req.params.roomId, req.query.limit, req.query.cursor)
     }).send(res)
 }
+
+
+export const SktSendMsg = async ({ socket, payload }) => {
+    SocketSuccessResponse.ok(
+        {
+            metadata: await sendMessageToRoom(socket.decoded.userId, payload),
+        }
+    ).emit(socket,"room:message:sent", { userId: socket.decoded.userId, payload });
+} 
