@@ -7,13 +7,14 @@ export const getChatRooms = async (userId, room_type = 'private', options = {}) 
   const { offset, limit } = options;
   const rooms = await roomModel.aggregate([
     // 1) Các phòng mà user đang là member
-    { $match: { "room_members.userId": objectId, room_type } },
+    { $match: { "room_members.userId": objectId, room_type: room_type } },
 
     // 2) Union thêm các phòng user từng gửi tin nhắn
     {
       $unionWith: {
         coll: "Rooms", // đúng tên collection bạn set trong schema
         pipeline: [
+          { $match: { room_type: room_type } },
           {
             $lookup: {
               from: "Messages",
