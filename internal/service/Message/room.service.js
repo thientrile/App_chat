@@ -81,7 +81,7 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private') =
   }
   if (room_type === "group") {
     const room = await roomModel.create(data);
-    return { id: room._id };
+    return { id: room.room_id };
   }
   let room = await roomModel.findOne({
     room_type: data.room_type,
@@ -92,7 +92,7 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private') =
     room = await roomModel.create(data);
   }
   return {
-    id: room._id,
+    id: room.room_id,
   }
 }
 
