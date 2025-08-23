@@ -78,7 +78,7 @@ export const findUserByPhoneNumber = async (phoneNumber, userId, type = 'accepte
 export const findUserById = async (Id, userId) => {
     const findUser = await userFindById(Id);
     if (!findUser) {
-        throw new Error("User not found");
+        throw new BadRequestError("User not found");
     }
     const user = removePrefixFromKeys(findUser, "usr_");
     const checkFriendship = await checkrelationship(userId, findUser._id);
@@ -101,7 +101,7 @@ export const updateProfileUser = async (userId, data) => {
     const addPrefix = addPrefixToKeys(data, "usr_");
     const user = await userModel.findByIdAndUpdate(userId, addPrefix, { new: true });
     if (!user) {
-        throw new Error("User not found");
+        throw new BadRequestError("User not found");
     }
     return removePrefixFromKeys(user.toObject(), "usr_");
 }

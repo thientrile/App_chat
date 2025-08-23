@@ -1,0 +1,1 @@
+export const outputMessage = ['__v','_id','room','deleted']

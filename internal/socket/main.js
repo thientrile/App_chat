@@ -1,5 +1,6 @@
 import { socketAsync } from "../../pkg/socketio/socket-async.js";
 import { SktSendMsg } from "../controller/Message/message.controller.js";
+import { findRoomById } from "../repository/room.reop.js";
 import { checkUserIshasOnline } from "../service/Connect/connect.service.js";
 import { sendMessageToRoom } from "../service/Message/message.service.js";
 
@@ -30,6 +31,7 @@ export const chatRoomHandler = (socket, io) => {
 
   // Khi gửi tin nhắn đến room
   socket.on("room:send:message", socketAsync(socket, async ({ payload }) => {
+   
     await SktSendMsg({ socket, payload });
   }));
 };

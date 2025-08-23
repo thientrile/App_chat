@@ -9,7 +9,7 @@ import _ from "lodash";
  * @param {Object} options.object - Object nguồn
  * @returns {Object}
  */
- const getInfoData = ({ fields = [], object = {} }) => {
+const getInfoData = ({ fields = [], object = {} }) => {
   return _.pick(object, fields);
 };
 
@@ -20,13 +20,16 @@ import _ from "lodash";
  * @param {Object} options.object - Object nguồn
  * @returns {Object}
  */
- const omitInfoData = ({ fields = [], object = {} }) => {
+const omitInfoData = ({ fields = [], object = {} }) => {
   return _.omit(object, fields);
 };
 const convertToObjectIdMongoose = (id) => new Types.ObjectId(id);
 const convertToUUIDMongoose = (id) => new Types.UUID(id);
+let counter = 0;
+const pid = process.pid;
 const randomId = () => {
-  return `${Date.now()}${Math.floor(Math.random() * 999999999)}`;
+  counter = (counter + 1) % Number.MAX_SAFE_INTEGER;
+  return `${Date.now()}_${pid}_${counter}_${Math.random().toString(36).slice(2, 8)}`;
 };
 const isValidation = {
   /**
@@ -88,12 +91,12 @@ const removePrefixFromKeys = (obj, prefix) => {
   }
   return newObj;
 };
- function pairRoomId(a, b) {
+function pairRoomId(a, b) {
   const sa = String(a), sb = String(b);
   return sa < sb ? `${sa}.${sb}` : `${sb}.${sa}`;
 }
 const escape = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const   expiresIn= (day) => {
+const expiresIn = (day) => {
   return Date.now() + day * 24 * 60 * 60 * 1000;
 }
 export {

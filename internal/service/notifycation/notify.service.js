@@ -15,3 +15,12 @@ export const sendNotifyForUser = async (notifyObje = {}, messageSend = {}) => {
     return notification
 
 }
+
+export const sendNotify = async (notif_user_receive, messageSend = {}) => {
+    const fcmTokens = await getAllFcmToken(notif_user_receive);
+
+    const notification = await pushMessage(fcmTokens, messageSend)
+
+    return notification
+
+}

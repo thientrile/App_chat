@@ -139,7 +139,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         foreignField: "_id",
         as: "sender",
         pipeline: [
-          { $project: { _id: 0, usr_fullname: 1, usr_avatar: 1, usr_slug: 1, usr_status: 1, id: "$usr_id" } }
+          { $project: { _id: 0, fullname: "$usr_fullname", avatar: "$usr_avatar", slug: "$usr_slug", status: "$usr_status", id: "$usr_id" } }
         ]
       }
     },
@@ -183,7 +183,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         id: "$msg_id",                 // public message id
         content: "$msg_content",
         type: "$msg_type",
-        room: "$msg_room",
+        // room: "$msg_room",
         // senderId: "$msg_sender",
         createdAt: 1,
         updatedAt: 1,

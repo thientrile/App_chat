@@ -36,4 +36,9 @@ const messageSchema = new Schema({
     collection: Collections,
 })
 messageSchema.index({ msg_room: 1, msg_sender: 1 });
+messageSchema.pre("save", function (next) {
+    this.msg_content = this.msg_content.trim();
+    this.msg_id = randomId();
+    next();
+});
 export default model(Documents, messageSchema);
