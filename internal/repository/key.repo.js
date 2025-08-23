@@ -3,6 +3,7 @@
 "use strict";
 
 
+import { convertToObjectIdMongoose } from "../../pkg/utils/index.utils.js";
 import keytokenModel from "../model/key.model.js";
 
 
@@ -18,7 +19,7 @@ const tkn_updateOne = async (filter, data) => {
 };
 const tkn_checkKeyTokenVerify = async (clientId) => {
 
- const [result] =await keytokenModel.aggregate([
+  const [result] = await keytokenModel.aggregate([
     { $match: { tkn_clientId: clientId } },
     {
       $lookup: {
@@ -73,7 +74,7 @@ const updateFcmToken = async (clientId, fcmToken) => {
   );
 }
 const getAllFcmToken = async (userId) => {
-  const tokens = await keytokenModel.find({ tkn_userId: userId, tkn_fcmToken: { $ne: null } })
+  const tokens = await keytokenModel.find({ tkn_userId: convertToObjectIdMongoose(userId), tkn_fcmToken: { $ne: null } })
     .select('tkn_fcmToken -_id');
   return tokens.map(doc => doc.tkn_fcmToken);
 

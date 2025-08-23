@@ -25,5 +25,5 @@ export const SktSendMsg = async ({ socket, payload }) => {
         {
             metadata: await sendMessageToRoom(socket.decoded.userId, payload),
         }
-    ).emit(socket,"room:message:sent", { userId: socket.decoded.userId, payload });
+    ).emit(socket,"room:message:received", { userId: socket.decoded.userId, payload });
 } 

@@ -1,3 +1,4 @@
+import { BadRequestError } from "../../../pkg/response/error.js";
 import { addPrefixToKeys, omitInfoData, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import userModel from "../../model/user.model.js";
 import { OmitUser } from "../../output/user.js";
@@ -9,7 +10,7 @@ import { userFindById } from "../../repository/user.repo.js";
 export const findUserByPhoneNumber = async (phoneNumber, userId) => {
     const findUser = await userModel.findOne({ usr_phone: phoneNumber });
     if (!findUser) {
-        throw new Error("User not found");
+        throw new BadRequestError("User not found");
     }
     const user = removePrefixFromKeys(findUser.toObject(), "usr_");
     const checkFriendship = await checkrelationship(userId, findUser._id.toString());
@@ -24,7 +25,7 @@ export const findUserByPhoneNumber = async (phoneNumber, userId) => {
 export const findUserById = async (Id, userId) => {
     const findUser = await userFindById(Id);
     if (!findUser) {
-        throw new Error("User not found");
+        throw new BadRequestError("User not found");
     }
     const user = removePrefixFromKeys(findUser, "usr_");
     const checkFriendship = await checkrelationship(userId, findUser._id);
@@ -47,7 +48,7 @@ export const updateProfileUser = async (userId, data) => {
     const addPrefix = addPrefixToKeys(data, "usr_");
     const user = await userModel.findByIdAndUpdate(userId, addPrefix, { new: true });
     if (!user) {
-        throw new Error("User not found");
+        throw new BadRequestError("User not found");
     }
     return removePrefixFromKeys(user.toObject(), "usr_");
 }
