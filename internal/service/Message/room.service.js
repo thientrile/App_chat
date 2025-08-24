@@ -60,8 +60,8 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private') =
     const findUserSender = await checkUserExistByUserId(userId);
     if (!findUserReciver) throw new BadRequestError("Receiver not found");
     if (!findUserSender) throw new BadRequestError("Sender not found");
-    data.room_id = pairRoomId(findUserSender._id, findUserReciver._id);
-    sortedIds = [findUserSender._id, findUserReciver._id].sort((a, b) =>
+    data.room_id = pairRoomId(findUserSender.usr_id, findUserReciver.usr_id);
+    sortedIds = [findUserSender.usr_id, findUserReciver.usr_id].sort((a, b) =>
       a.toString().localeCompare(b.toString())
     );
     data.room_members = sortedIds.map((id) => ({
@@ -81,7 +81,7 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private') =
   }
   if (room_type === "group") {
     const room = await roomModel.create(data);
-    return { id: room._id };
+    return { id: room.room_id };
   }
   let room = await roomModel.findOne({
     room_type: data.room_type,
@@ -92,7 +92,7 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private') =
     room = await roomModel.create(data);
   }
   return {
-    id: room._id,
+    id: room.room_id,
   }
 }
 
