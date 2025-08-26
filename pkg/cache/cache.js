@@ -32,6 +32,11 @@ export const userOnline = async (userId, socketId) => {
   await sAdd(KeyOnlineSocket(userId), socketId);
 };
 
+
+export const userRoom = async (userId, roomId) => {
+  Logger.info(`User ${userId} joined room ${roomId}`);
+  await sAdd(KeyRedisRoom(userId), roomId);
+};
 /**
  * When user offline
  */

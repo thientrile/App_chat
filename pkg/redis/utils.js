@@ -155,6 +155,7 @@ const sCard= async (key) => {
     return 0;
   }
 }
+
 const sMembers= async (key) => {
   try {
     return await global.RedisClient.sMembers(key);

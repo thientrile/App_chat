@@ -1,6 +1,7 @@
 import { BadRequestError } from "../../../pkg/response/error.js";
 import { convertToObjectIdMongoose, omitInfoData, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import messageMode from "../../model/message.mode.js";
+import message_eventModel from "../../model/message_event.model.js";
 import roomModel from "../../model/room.model.js";
 import userModel from "../../model/user.model.js";
 import { findRoomById, getRoomInfoById } from "../../repository/room.reop.js";
@@ -24,8 +25,8 @@ export const sendMessageToRoom = async (userId, payload) => {
         title: `~${from} Tin nhắn mới`,
         body: content,
         data: {
-            screen: "Main",
-            subScreen: "Chats",
+            screen: "ChatRoom",
+            // subScreen: "Chats",
             params: JSON.stringify(roomInfo),
         },
     };
@@ -50,18 +51,64 @@ export const sendMessageToRoom = async (userId, payload) => {
     })
     await Promise.all(sendNoti)
     room.room_last_messages = newMsg._id;
-    await roomModel.findOneAndUpdate(
-        { _id: room._id },
-        { $set: { room_last_messages: newMsg._id } },
-        { new: true }
-    );
+    await Promise.all([
+        message_eventModel.findOneAndUpdate(
+            { event_roomId: room._id, event_userId: convertToObjectIdMongoose(userId), event_type: 'readed' },
+            { event_msgId: newMsg._id },
+            { new: true, upsert: true }
+        ),
+        roomModel.findOneAndUpdate(
+            { _id: room._id },
+            { $set: { room_last_messages: newMsg._id } },
+            { new: true }
+        )
+    ])
     const message = omitInfoData({ fields: outputMessage, object: removePrefix });
     message.readCount = 0;
     message.isReadByMe = false;
     message.sender = removePrefixFromKeys(sender, "usr_");
+    const rmId = room.room_id.includes(".") ? room.room_id.replace(".", "").replace(roomId, "") : roomId;
     return {
-        roomId,
+        roomId: rmId,
         message
+    };
+}
+
+
+
+// msg event
+export const readMarkMsgToRoom = async (userId, payload) => {
+    const { roomId, lastMsgId } = payload;
+
+    // Find the room
+    const room = await findRoomById(roomId);
+    if (!room) {
+        throw new BadRequestError("Room not found");
+    }
+    const isMember = await roomModel.exists({ _id: room._id, "room_members.userId": convertToObjectIdMongoose(userId) });
+    if (!isMember) {
+        throw new BadRequestError("User is not a member of the room");
+    }
+    // check message
+    const message = await messageMode.findOne({ msg_id: lastMsgId, msg_room: room._id });
+    if (!message) {
+        throw new BadRequestError("Message not found");
+    }
+    await message_eventModel.findOneAndUpdate(
+        { event_roomId: room._id, event_userId: convertToObjectIdMongoose(userId), event_type: 'readed' },
+        { event_msgId: message._id },
+        { new: true, upsert: true }
+    );
+    // // Mark the message as read
+    // await messageMode.updateOne(
+    //     { _id: messageId, msg_room: roomId },
+    //     { $addToSet: { msg_read_by: userId } }
+    // );
+    // console.log("🚀 ~ readMarkMsgToRoom ~ roomId:", room.room_id.replace(".", "").replace(roomId, ""));
+    const rmId = room.room_id.includes(".") ? room.room_id.replace(".", "").replace(roomId, "") : roomId
+    return {
+        roomId: rmId,
+        lastMsgId
     };
 }
 

@@ -25,12 +25,39 @@ const omitInfoData = ({ fields = [], object = {} }) => {
 };
 const convertToObjectIdMongoose = (id) => new Types.ObjectId(id);
 const convertToUUIDMongoose = (id) => new Types.UUID(id);
-let counter = 0;
-const pid = process.pid;
-const randomId = () => {
-  counter = (counter + 1) % Number.MAX_SAFE_INTEGER;
-  return `${Date.now()}_${pid}_${counter}_${Math.random().toString(36).slice(2, 8)}`;
-};
+const randomId = (() => {
+  let lastMs = 0;
+  let seq = 0;
+  const MAX_SEQ = 0xFFFFFF; // ~16.7 triệu ID trong 1ms
+
+  const toHex = (n, width) => n.toString(16).padStart(width, "0");
+
+  return function () {
+    let now = Date.now();
+
+    // chống đồng hồ hệ thống giật lùi
+    if (now < lastMs) now = lastMs;
+
+    if (now === lastMs) {
+      // cùng 1 ms -> tăng sequence
+      if (++seq > MAX_SEQ) { // quá tải 1ms -> nhảy logic sang ms tiếp theo
+        lastMs = lastMs + 1;
+        seq = 0;
+      }
+    } else {
+      // ms mới -> reset sequence
+      lastMs = now;
+      seq = 0;
+    }
+
+    // fixed-width -> so sánh theo chuỗi cũng đúng thứ tự
+    const timeHex = toHex(lastMs, 12);                 // 48-bit time
+    const seqHex = toHex(seq, 6);                     // 24-bit seq
+    const randHex = toHex((Math.random() * 0x10000) | 0, 4); // 16-bit random (không ảnh hưởng thứ tự)
+
+    return `${timeHex}${seqHex}${randHex}`;
+  };
+})();
 const isValidation = {
   /**
    * Checks if the input is a valid email address.
