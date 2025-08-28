@@ -5,6 +5,8 @@ import { chatHandler, chatRoomHandler } from "../socket/main.js";
 
 const InitSocketIo=async (http)=>{
     const SocketIOHandles=[chatHandler,chatRoomHandler];
+
+
    const SocketMiddleware=[socketAuthMiddleware]
    const socketHandlerDisconnect = [
     socketDisconnectMiddleware

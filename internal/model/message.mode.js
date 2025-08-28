@@ -12,6 +12,24 @@ const messageSchema = new Schema({
         type: String,
         required: true,
     },
+    msg_attachments:[{
+        kind:{ type: String, enum: ['image', 'video', 'file'], required: true },
+        url: { type: String, required: true },
+        name: { type: String },
+        size: { type: Number, required: true },
+        mimeType: { type: String, required: true },
+        thumbUrl: { type: String },
+
+        // chỉ có image
+
+        width: { type: Number },
+        height: { type: Number },
+
+
+        // chỉ có video
+        duration: { type: Number },
+
+    }],
     msg_sender: {
         type: Schema.Types.ObjectId,
         ref: 'User',
