@@ -5,9 +5,10 @@ import { webcrypto } from "crypto";
 
 import { AuthFailureError, ForbiddenError } from "../response/error.js";
 import headers from "../context/header.js";
-import {  getArray} from "../redis/utils.js";
-import { keyRedisLogout, userOffline, userOnline } from "../cache/cache.js";
+import { getArray, sMembers } from "../redis/utils.js";
+import { keyRedisLogout, KeyRedisRoom, userOffline, userOnline } from "../cache/cache.js";
 import { tkn_checkKeyTokenVerify } from "../../internal/repository/key.repo.js";
+import { ensureUserRoomCache } from "../../internal/service/Message/room.service.js";
 
 // Gán `crypto.subtle` cho Node.js
 if (!globalThis.crypto) {
@@ -46,7 +47,7 @@ export const socketAuthMiddleware = async (socket, next) => {
     const userId = keyStore.tkn_userId.toString();
     if (userId !== decrypted.userId) throw new AuthFailureError("Token has expired");
 
-   const logout = await getArray(keyRedisLogout(userId));
+    const logout = await getArray(keyRedisLogout(userId));
     if (logout.includes(decrypted.jit) || keyStore.tkn_jit.includes(decrypted.jit)) {
       throw new AuthFailureError("Token has expired");
     }
@@ -55,6 +56,9 @@ export const socketAuthMiddleware = async (socket, next) => {
     socket.token = token;
     socket.decoded = decrypted;
     await userOnline(decrypted.userId, socket.id);
+    await ensureUserRoomCache(userId);
+    const roomIds = await sMembers(KeyRedisRoom(userId));
+    roomIds.forEach((rid) => socket.join(rid));
     return next();
   } catch (err) {
     console.error("❌ Socket auth failed:", err.stack);

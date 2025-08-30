@@ -115,7 +115,7 @@ export const getChatRooms = async (userId, room_type = 'private', options = {}) 
               $expr: {
                 $and: [
                   { $eq: ["$event_msgId", "$$lastMsgId"] },
-                  { $eq: ["$event_senderId", "$$me"] },
+                  { $eq: ["$event_userId", "$$me"] },
                   { $eq: ["$event_type", "readed"] }
                 ]
               }
@@ -160,7 +160,7 @@ export const getChatRooms = async (userId, room_type = 'private', options = {}) 
             "$otherMember.usr_avatar",
             "$groupAvatars"
           ]
-          
+
         },
         is_read: 1
       }
@@ -180,7 +180,7 @@ async function findRoomByHalf(half) {
   // Thử nửa đứng TRƯỚC: ^half\.  (có cơ hội dùng index room_id:1)
   let doc = await roomModel.findOne(
     { room_type: "private", room_id: new RegExp(`^${h}\\.`) },
-    { _id: 1, room_id: 1, room_type: 1,room_members: 1 }
+    { _id: 1, room_id: 1, room_type: 1, room_members: 1 }
   ).lean();
   if (doc) return doc;
 
@@ -219,7 +219,7 @@ export async function findRoomById(roomIdOrHalf) {
 // Function mới: Lấy thông tin chi tiết phòng với last message và trạng thái đọc
 export const getRoomInfoById = async (roomId, userId) => {
   const objectId = convertToObjectIdMongoose(userId);
-  
+
   const result = await roomModel.aggregate([
     // 1) Tìm phòng theo room_id
     { $match: { room_id: roomId } },
@@ -343,4 +343,23 @@ export const getRoomInfoById = async (roomId, userId) => {
   ]);
 
   return result.length > 0 ? result[0] : null;
+};
+
+export const listRoomIdByUserId = async (userId) => {
+  const _id = convertToObjectIdMongoose(userId);
+
+  const rooms = await roomModel.find({
+    $or: [
+      // User là member của room
+      { "room_members.userId": _id },
+      // User đã từng gửi tin nhắn trong room (từ Messages collection)
+    ]
+  }, {
+    room_id: 1,
+    _id: 0
+  }).lean();
+
+
+
+  return rooms;
 };

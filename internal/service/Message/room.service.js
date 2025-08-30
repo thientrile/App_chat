@@ -3,13 +3,13 @@ import { BadRequestError } from "../../../pkg/response/error.js";
 import { convertToObjectIdMongoose, omitInfoData, pairRoomId } from "../../../pkg/utils/index.utils.js";
 import messageModel from "../../model/message.mode.js";
 import roomModel from "../../model/room.model.js";
-import { findRoomById, getChatRooms } from "../../repository/room.reop.js";
+import { findRoomById, getChatRooms, listRoomIdByUserId } from "../../repository/room.reop.js";
 import { checkUserExistByUserId, userFindById } from "../../repository/user.repo.js";
-import { KeyOnlineSocket } from "../../../pkg/cache/cache.js";
-import { getArray, sCard, sMembers } from "../../../pkg/redis/utils.js";
+import { KeyOnlineSocket, KeyRedisRoom } from "../../../pkg/cache/cache.js";
+import { getArray, sAdd, sCard, sMembers } from "../../../pkg/redis/utils.js";
 
 
-const canViewRoomForUser = async (userId, roomId) => {
+export const canViewRoomForUser = async (userId, roomId) => {
   const uid = convertToObjectIdMongoose(userId);
 
   // roomId là public id (room_id) => map sang _id
@@ -21,7 +21,7 @@ const canViewRoomForUser = async (userId, roomId) => {
   // console.log("🚀 ~ canViewRoomForUser ~ listSocketIo:", listSocketIo)
   listSocketIo.forEach(socketId => {
 
-   global.IO.in(socketId).socketsJoin(found.room_id)
+    global.IO.in(socketId).socketsJoin(found.room_id)
   });
   const rid = found._id;
 
@@ -69,15 +69,15 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private') =
       role: "member",
     }));
   } else {
-     delete data.room_id; // cho tự gen
-     const users = await Promise.all(usr_ids.map(id => userFindById(id)));
-     sortedIds = [userId, ...users.map(user => user._id)].sort((a, b) =>
-       a.toString().localeCompare(b.toString())
-     );
-     data.room_members = sortedIds.map(id => ({
-       userId: id,
-       role: "member",
-     }));
+    delete data.room_id; // cho tự gen
+    const users = await Promise.all(usr_ids.map(id => userFindById(id)));
+    sortedIds = [userId, ...users.map(user => user._id)].sort((a, b) =>
+      a.toString().localeCompare(b.toString())
+    );
+    data.room_members = sortedIds.map(id => ({
+      userId: id,
+      role: "member",
+    }));
   }
   if (room_type === "group") {
     const room = await roomModel.create(data);
@@ -208,4 +208,20 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
   docs = docs.map(doc => omitInfoData({ fields: ["_id", "readers"], object: doc }));
 
   return { items: docs, nextCursor };
+};
+
+
+
+
+export const ensureUserRoomCache = async (userId) => {
+  const key = KeyRedisRoom(userId);
+  const count = await sCard(key);
+  if (count > 0) return; // đã có cache
+
+  const rooms = await listRoomIdByUserId(userId); // [{room_id}]
+  if (rooms?.length) {
+    const ids = rooms.map(r => String(r.room_id));
+    // nạp hàng loạt cho nhanh
+    await sAdd(key, ...ids);
+  }
 };
