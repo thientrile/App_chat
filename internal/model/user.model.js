@@ -4,7 +4,7 @@ const Documents = "User"
 const Collections = "Users";
 const userSchema = new Schema({
     usr_id: {
-        type: Number,
+        type: String,
         default: () => randomId()
     }, //user
     usr_slug: {
@@ -21,7 +21,6 @@ const userSchema = new Schema({
         // required: true,
         unique: [true, 'Email already exists'],
         sparse: true,
-        default: null
     },
     usr_phone: {
         type: String,
