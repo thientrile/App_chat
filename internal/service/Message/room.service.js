@@ -48,12 +48,14 @@ export const getListRoomsGroup = async (userId, options) => {
 }
 
 
-export const createRoomByType = async (userId, usr_ids, room_type = 'private') => {
+export const createRoomByType = async (userId, usr_ids, room_type = 'private', request = {}) => {
   let sortedIds = [];
   const data = {
     room_id: null,
     room_type,
     room_members: [],
+    room_name: request.name || "Default Room",
+    room_avatar: request.avatar || "https://picsum.photos/800/400",
   };
   if (room_type == 'private') {
     const findUserReciver = await userFindById(usr_ids[0]);
@@ -79,6 +81,7 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private') =
       role: "member",
     }));
   }
+
   if (room_type === "group") {
     const room = await roomModel.create(data);
     return { id: room.room_id };
