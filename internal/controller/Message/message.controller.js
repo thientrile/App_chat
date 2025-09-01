@@ -61,7 +61,7 @@ export const SktAcceptCall = async ({ socket, payload }) => {
 
 export const SktRejectCall = async ({ socket, payload }) => {
     const room = await findRoomById(payload.roomId);
-    console.log("🚀reject call", payload);
+    // console.log("🚀reject call", payload);
     SocketSuccessResponse.ok({
         message: "Call rejected",
         metadata: payload
@@ -70,12 +70,12 @@ export const SktRejectCall = async ({ socket, payload }) => {
 
 export const SktWebRTC = async ({ socket, payload }) => {
     const room = await findRoomById(payload.roomId);
-    const { to, from, offer, answer, candidate, roomId } = payload;
+    const { peerId, offer, answer, candidate, roomId } = payload;
+    console.log("🚀 ~ SktWebRTC ~ payload:", payload)
     SocketSuccessResponse.ok({
         message: "WebRTC signal",
         metadata: {
-            from,
-            to,
+            peerId,
             offer,
             answer,
             candidate,

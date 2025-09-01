@@ -214,10 +214,10 @@ export const listPendingFriendRequests = async (userId, options) => {
       }
     },
     {
-      $skip: offset ?? 0
+      $skip: Number(offset ?? 0)
     },
     {
-      $limit: limit ?? 20
+      $limit: Number(limit ?? 20)
     }
   ]);
 

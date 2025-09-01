@@ -180,8 +180,8 @@ export const getChatRooms = async (userId, room_type = 'private', options = {}) 
         room_avatar: "$room_avatar",
       }
     },
-    { $skip: offset || 0 },
-    { $limit: limit || 1000 }
+    { $skip: Number(offset || 0) },
+    { $limit: Number(limit || 1000) }
   ]);
 
   return rooms;
