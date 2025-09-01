@@ -41,3 +41,45 @@ export const SktReadedMsg = async ({ socket, payload }) => {
         }
     ).to(socket, room.room_id, "room:readed:message")
 }
+
+export const SktIncomingCall = async ({ socket, payload }) => {
+    const room = await findRoomById(payload.roomId);
+    socket.join(room.room_id);
+    SocketSuccessResponse.ok({
+        message: "Incoming call",
+        metadata: payload
+    }).to(socket, room.room_id, "call:incoming");
+}
+
+export const SktAcceptCall = async ({ socket, payload }) => {
+    const room = await findRoomById(payload.roomId);
+    SocketSuccessResponse.ok({
+        message: "Call accepted",
+        metadata: payload
+    }).to(socket, room.room_id, "call:accepted");
+}
+
+export const SktRejectCall = async ({ socket, payload }) => {
+    const room = await findRoomById(payload.roomId);
+    console.log("🚀reject call", payload);
+    SocketSuccessResponse.ok({
+        message: "Call rejected",
+        metadata: payload
+    }).to(socket, room.room_id, "call:rejected");
+}
+
+export const SktWebRTC = async ({ socket, payload }) => {
+    const room = await findRoomById(payload.roomId);
+    const { to, from, offer, answer, candidate, roomId } = payload;
+    SocketSuccessResponse.ok({
+        message: "WebRTC signal",
+        metadata: {
+            from,
+            to,
+            offer,
+            answer,
+            candidate,
+            roomId
+        }
+    }).to(socket, room.room_id, "client:signal");
+}
