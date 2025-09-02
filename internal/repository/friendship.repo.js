@@ -73,7 +73,7 @@ export const getFriendIdsOfUser = async (userId, options = {}) => {
 
   pipeline.push(
     { $limit: Math.max(1, Math.min(+limit || 1000, 5000)) },
-    { $skip: offset || 0 },
+    { $skip: Number(offset) || 0 },
     { $project: { _id: 0, friendId: 1 } }
   );
 

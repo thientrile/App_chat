@@ -100,7 +100,14 @@ export const getChatRooms = async (userId, room_type = 'private', options = {}) 
             }
           }
         },
-        groupAvatars: { $slice: ["$members.usr_avatar", 4] }
+        groupAvatars: { $slice: ["$members.usr_avatar", 4] },
+        member_count: {
+          $cond: [
+            { $eq: ["$room_type", "group"] },
+            { $size: "$members" },
+            "$$REMOVE"
+          ]
+        }
       }
     },
 
@@ -162,11 +169,19 @@ export const getChatRooms = async (userId, room_type = 'private', options = {}) 
           ]
 
         },
-        is_read: 1
+        is_read: 1,
+        member_count: {
+          $cond: [
+            { $eq: ["$room_type", "group"] },
+            "$member_count",
+            "$$REMOVE"
+          ]
+        },
+        room_avatar: "$room_avatar",
       }
     },
-    { $skip: offset || 0 },
-    { $limit: limit || 1000 }
+    { $skip: Number(offset || 0) },
+    { $limit: Number(limit || 1000) }
   ]);
 
   return rooms;

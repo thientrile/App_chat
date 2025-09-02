@@ -1,4 +1,5 @@
 import { SuccessReponse } from "../../../pkg/response/success.js";
+import { omitInfoData } from "../../../pkg/utils/index.utils.js";
 import { createRoomByType } from "../../service/Message/room.service.js";
 import { acceptFriendRequest, rejectFriendRequest, sendFriendRequestToStranger, listPendingFriendRequests } from "../../service/profile/friendship.service.js";
 import { findUserById, findUserByPhoneNumber, listFriends, updateProfileUser, listGroups } from "../../service/profile/profile.service.js";
@@ -81,8 +82,13 @@ export const getListPendingFriendRequests = async (req, res) => {
 }
 
 export const createGroup = async (req, res) => {
+    const body = req.body;
+    const otherData = omitInfoData({
+        fields: ["userIds"], 
+        object: body
+    });
     new SuccessReponse({
         message: "Group created successfully",
-        metadata: await createRoomByType(req.decoded.userId, req.body.userIds, "group")
+        metadata: await createRoomByType(req.decoded.userId, body.userIds, "group", otherData)
     }).send(res);
 }

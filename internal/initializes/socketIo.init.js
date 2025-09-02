@@ -1,10 +1,10 @@
 import { initSocketIO } from "../../pkg/socketio/socketio.js";
 import { socketAuthMiddleware, socketDisconnectMiddleware } from "../../pkg/socketio/socketIoAuth.js";
-import { chatHandler, chatRoomHandler } from "../socket/main.js";
+import { chatHandler, chatRoomHandler, handleCall } from "../socket/main.js";
 
 
 const InitSocketIo=async (http)=>{
-    const SocketIOHandles=[chatHandler,chatRoomHandler];
+    const SocketIOHandles=[chatHandler,chatRoomHandler, handleCall];
 
 
    const SocketMiddleware=[socketAuthMiddleware]
