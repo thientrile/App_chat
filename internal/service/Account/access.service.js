@@ -29,8 +29,7 @@ const registerAccount = async (body) => {
     throw new ForbiddenError(
       getErrorMessageMongose(
         err,
-
-        " Username or email or phone number already exists"
+        "Username or email or phone number already exists"
       )
     );
   });

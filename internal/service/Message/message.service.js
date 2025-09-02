@@ -1,5 +1,5 @@
 import { BadRequestError } from "../../../pkg/response/error.js";
-import { convertToObjectIdMongoose, omitInfoData, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
+import { convertToObjectIdMongoose, omitInfoData, randomId, removePrefixFromKeys } from "../../../pkg/utils/index.utils.js";
 import messageMode from "../../model/message.mode.js";
 import message_eventModel from "../../model/message_event.model.js";
 import roomModel from "../../model/room.model.js";
@@ -10,17 +10,24 @@ import { sendNotify, sendNotifyForUser } from "../notifycation/notify.service.js
 
 
 export const sendMessageToRoom = async (userId, payload) => {
-    const { roomId, content, type } = payload
+    const { roomId, content, id } = payload
 
     //find roomId
-    const room = await findRoomById(roomId)
+    // const room = await findRoomById(roomId)
+
+    // const sender = await userModel.findById(userId).select("usr_fullname usr_avatar usr_slug status usr_id -_id").lean();
+
+    const [room, sender] = await Promise.all([
+        findRoomById(roomId),
+        userModel.findById(userId).select("usr_fullname usr_avatar usr_slug status usr_id -_id").lean()
+    ])
     if (!room) {
         throw new BadRequestError("Room not found");
     }
-    const sender = await userModel.findById(userId).select("usr_fullname usr_avatar usr_slug status usr_id -_id").lean();
     const from = room.room_type === "private" ? sender.usr_fullname : room.room_name;
     const members = room.room_members.map(m => m.userId.toString())
     const roomInfo = await getRoomInfoById(room.room_id, userId)
+    // createe notifle data
     const messageSend = {
         title: `~${from} Tin nhắn mới`,
         body: content,
@@ -32,9 +39,10 @@ export const sendMessageToRoom = async (userId, payload) => {
     };
 
     const data = {
+        msg_id: id || randomId(),
         msg_room: room._id,
         msg_content: content,
-        msg_type: type,
+        // msg_type: type,
         msg_sender: convertToObjectIdMongoose(userId)
     }
     const newMsg = (await messageMode.create(data))
@@ -43,15 +51,11 @@ export const sendMessageToRoom = async (userId, payload) => {
         throw new BadRequestError("Message not created");
     }
     //send notification
-    const sendNoti = members.map(async (id) => {
-        let notifyObje = {}
-        notifyObje.notif_user_receive = id
-        notifyObje.notif_type = "message"
-        return await sendNotify(id, messageSend)
-    })
-    await Promise.all(sendNoti)
-    room.room_last_messages = newMsg._id;
-    await Promise.all([
+    const recipients = members.filter((m) => m !== String(userId));
+
+    // 1) chuẩn bị promises (KHÔNG await ở đây)
+    const notifyPromises = recipients.map((uid) => sendNotify(uid, messageSend));
+    const dbPromise = [
         message_eventModel.findOneAndUpdate(
             { event_roomId: room._id, event_userId: convertToObjectIdMongoose(userId), event_type: 'readed' },
             { event_msgId: newMsg._id },
@@ -62,7 +66,14 @@ export const sendMessageToRoom = async (userId, payload) => {
             { $set: { room_last_messages: newMsg._id } },
             { new: true }
         )
-    ])
+    ]
+    await Promise.all(
+        [
+            Promise.allSettled(notifyPromises),
+            Promise.all(dbPromise)
+        ]
+    );
+
     const message = omitInfoData({ fields: outputMessage, object: removePrefix });
     message.readCount = 0;
     message.isReadByMe = false;
@@ -77,6 +88,9 @@ export const sendMessageToRoom = async (userId, payload) => {
 
 
 // msg event
+
+
+
 export const readMarkMsgToRoom = async (userId, payload) => {
     const { roomId, lastMsgId } = payload;
 

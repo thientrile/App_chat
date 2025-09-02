@@ -116,6 +116,7 @@ class RedisErrorRespoint extends ErrorResponse {
   }
 }
 const getErrorMessageMongose = (error, message = "") => {
+  console.log("🚀 ~ getErrorMessageMongose ~ error:", error)
   if (error.errors) {
     for (const key in error.errors) {
       return error.errors[key]?.properties.message;

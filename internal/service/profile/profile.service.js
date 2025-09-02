@@ -91,10 +91,30 @@ export const findUserById = async (Id, userId) => {
 export const listFriends = async (userId, options) => {
     const userIds = await getFriendIdsOfUser(userId, options);
 
-    const friends = await userModel.find({ _id: { $in: userIds } });
-    return friends.map(friend => {
-        return omitInfoData({ fields: OmitUser, object: removePrefixFromKeys(friend.toObject(), "usr_") });
-    });
+    const friends = await userModel.aggregate([
+        { $match: { _id: { $in: userIds.map(id => convertToObjectIdMongoose(id)) } } },
+        {
+            $lookup: {
+                from: "Rooms",
+                localField: "_id",
+                foreignField: "room_members.userId",
+                as: "rooms"
+            }
+        },
+        {
+            $addFields: {
+                room: { $arrayElemAt: ["$rooms", 0] } // Lấy phòng đầu tiên
+            }
+        },
+        {
+            $unset: ["rooms"] // Loại bỏ trường rooms không cần thiết
+        }
+    ]);
+    return friends.map(
+        friend => {
+            return omitInfoData({ fields: OmitUser, object: removePrefixFromKeys(friend, "usr_") });
+        }
+    );
 }
 
 export const updateProfileUser = async (userId, data) => {

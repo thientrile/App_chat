@@ -1,5 +1,5 @@
 import { socketAsync } from "../../pkg/socketio/socket-async.js";
-import { SktReadedMsg, SktSendMsg } from "../controller/Message/message.controller.js";
+import { SktAcceptCall, SktIncomingCall, SktReadedMsg, SktRejectCall, SktSendMsg, SktWebRTC } from "../controller/Message/message.controller.js";
 import { findRoomById } from "../repository/room.reop.js";
 import { checkUserIshasOnline } from "../service/Connect/connect.service.js";
 import { sendMessageToRoom } from "../service/Message/message.service.js";
@@ -47,3 +47,23 @@ export const chatHandler = (socket, io) => {
     io.emit("user_online", { id, isOnline });
   });
 };
+
+
+export const handleCall = (socket, io) => {
+  // Sự kiện gọi đến người dùng
+  socket.on("call:invite", socketAsync(socket, async ({ payload }) => {
+    await SktIncomingCall({ socket, payload });
+  }));
+  // Sự kiện chấp nhận cuộc gọi
+  socket.on("call:accept", socketAsync(socket, async ({ payload }) => {
+    await SktAcceptCall({ socket, payload });
+  }));
+  // Sự kiện từ chối cuộc gọi, kết thúc cuộc gọi
+  socket.on("call:reject", socketAsync(socket, async ({ payload }) => {
+    await SktRejectCall({ socket, payload });
+  }));
+  // Sự kiện bắn tín hiệu
+  socket.on("call:signal", socketAsync(socket, async ({ payload }) => {
+    await SktWebRTC({ socket, payload });
+  }));
+}

@@ -79,6 +79,19 @@ const getAllFcmToken = async (userId) => {
   return tokens.map(doc => doc.tkn_fcmToken);
 
 }
+// const getAllFcmToken = async (userId) => {
+//   const THIRTY_DAYS = 30 * 24 * 60 * 60 * 1000; // ms
+//   const limitDate = new Date(Date.now() - THIRTY_DAYS);
+
+//   const tokens = await keytokenModel.find({
+//       tkn_userId: convertToObjectIdMongoose(userId),
+//       tkn_fcmToken: { $ne: null },
+//       updatedAt: { $gte: limitDate } // chỉ lấy token update trong vòng 30 ngày
+//     })
+//     .select('tkn_fcmToken -_id');
+
+//   return tokens.map(doc => doc.tkn_fcmToken);
+// };
 export {
   adddJitToKeyToken,
   updateFcmToken,

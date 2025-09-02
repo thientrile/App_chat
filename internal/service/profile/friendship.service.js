@@ -109,7 +109,7 @@ export const acceptFriendRequest = async (Id, userId) => {
   }
 
   // Tạo hoặc lấy phòng chat
-  const room = await createRoomByType(userId, [Number(Id)], "private");
+  const room = await createRoomByType(userId, [Id], "private");
   if (!room) {
     throw new BadRequestError("Không thể tạo phòng chat mới");
   }
@@ -214,10 +214,10 @@ export const listPendingFriendRequests = async (userId, options) => {
       }
     },
     {
-      $skip: offset ?? 0
+      $skip: Number(offset ?? 0)
     },
     {
-      $limit: limit ?? 20
+      $limit: Number(limit ?? 20)
     }
   ]);
 
