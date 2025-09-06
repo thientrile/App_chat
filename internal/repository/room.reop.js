@@ -189,6 +189,223 @@ export const getChatRooms = async (userId, room_type = 'private', options = {}) 
 
 
 
+export const getChatRoomsAll = async (userId,) => {
+  const objectId = convertToObjectIdMongoose(userId);
+  // const { offset, limit } = options;
+  const rooms = await roomModel.aggregate([
+    {
+      $match: {
+        "room_members.userId": objectId
+      }
+    },
+    {
+      $unionWith: {
+        coll: "Rooms",
+        pipeline: [
+          {
+            $lookup: {
+              from: "Messages",
+              let: {
+                uid: objectId
+              },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+                      $eq: ["$msg_sender", "$$uid"]
+                    }
+                  }
+                }
+              ],
+              as: "sent_msgs"
+            }
+          },
+          {
+            $match: { "sent_msgs.0": { $exists: true } }
+          }
+        ]
+      }
+    },
+    {
+      $group: {
+        _id: "$_id", doc: { $first: "$$ROOT" }
+      }
+    },
+    {
+      $replaceRoot: { newRoot: "$doc" }
+    },
+    {
+      $lookup: {
+        from: "Messages",
+        localField: "room_last_messages",
+        foreignField: "_id",
+        as: "last_message"
+      }
+    },
+    {
+      $unwind: {
+        path: "$last_message",
+        preserveNullAndEmptyArrays: true
+      }
+    },
+    {
+      $lookup: {
+        from: "Users",
+        localField: "room_members.userId",
+        foreignField: "_id",
+        pipeline: [{ $project: { _id: 1, usr_id: 1, usr_fullname: 1, usr_avatar: 1 } }],
+        as: "members"
+      }
+    },
+    {
+      $lookup: {
+        from: "Messages",
+        let: {
+          rid: "$_id",
+          uid: objectId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$msg_roomId", "$$rid"] }, // RÀNG BUỘC THEO ROOM HIỆN TẠI
+                  { $eq: ["$msg_sender", "$$uid"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "sent_by_me"
+      }
+    }, {
+      $match: {
+        $or: [
+          { "room_members.userId": objectId },
+          { "sent_by_me.0": { $exists: true } }
+        ]
+      }
+    },
+    {
+      $addFields: {
+        _hasAvatar: {
+          $ne: [{ $ifNull: ["$room_avatar", ""] }, ""]
+        },
+        otherMember: {
+          $cond: [
+            { $not: ["$_hasAvatar"] },
+            {
+              $first: {
+                $filter: {
+                  input: "$members",
+                  as: "m",
+                  cond: { $ne: ["$$m._id", objectId] }
+                }
+              }
+            },
+            "$$REMOVE" // bỏ field nếu không cần
+          ]
+        },
+        groupAvatars: {
+          $cond: [
+            { $not: ["$_hasAvatar"] },
+            { $slice: ["$members.usr_avatar", 4] },
+            "$$REMOVE"
+          ]
+        }
+      }
+    },
+    {
+      $lookup:
+      {
+        from: "MessageEvents",
+        let: {
+          lastMsgId: "$room_last_messages",
+          me: objectId
+        },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  {
+                    $eq: ["$event_msgId", "$$lastMsgId"]
+                  },
+                  { $eq: ["$event_userId", "$$me"] },
+                  { $eq: ["$event_type", "readed"] }
+                ]
+              }
+            }
+          },
+          { $limit: 1 }
+        ],
+        as: "my_lastmsg_reads"
+      }
+    },
+    {
+      $addFields: {
+        is_read: {
+          $and: [
+            { $gt: [{ $size: "$my_lastmsg_reads" }, 0] },
+            { $ne: ["$last_message.msg_sender", objectId] }
+          ]
+        }
+      }
+    }, {
+      $sort:
+      {
+        "last_message.createdAt": -1
+      }
+    }, {
+      $project:/**
+ * specifications: The fields to
+ *   include or exclude.
+ */
+      {
+        _id: 0,
+        id: {
+          $cond: [
+            { $eq: ["$room_type", "private"] },
+            "$otherMember.usr_id",
+            "$room_id"
+          ]
+        },
+        type: "$room_type",
+        last_message: {
+          content: "$last_message.msg_content",
+          createdAt: "$last_message.createdAt",
+          id: "$last_message.msg_id",
+        },
+        name: {
+          $cond: [
+            { $eq: ["$room_type", "private"] },
+            "$otherMember.usr_fullname",
+            "$room_name"
+          ]
+        },
+        is_read: 1,
+        avatar: {
+          $cond: [
+            { $eq: ["$_hasAvatar", true] },
+            "$room_avatar",
+            {
+              $cond: [
+                { $eq: ["$room_type", "private"] },
+                "$otherMember.usr_avatar",
+                "$groupAvatars"
+              ]
+            }
+          ]
+        }
+      }
+    },
+
+  ])
+  return rooms;
+}
+
+
+
 
 async function findRoomByHalf(half) {
   const h = escape(half);

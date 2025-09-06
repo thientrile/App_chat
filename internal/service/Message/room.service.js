@@ -3,7 +3,7 @@ import { BadRequestError } from "../../../pkg/response/error.js";
 import { convertToObjectIdMongoose, omitInfoData, pairRoomId } from "../../../pkg/utils/index.utils.js";
 import messageModel from "../../model/message.mode.js";
 import roomModel from "../../model/room.model.js";
-import { findRoomById, getChatRooms, listRoomIdByUserId } from "../../repository/room.reop.js";
+import { findRoomById, getChatRooms, getChatRoomsAll, listRoomIdByUserId } from "../../repository/room.reop.js";
 import { checkUserExistByUserId, userFindById } from "../../repository/user.repo.js";
 import { KeyOnlineSocket, KeyRedisRoom } from "../../../pkg/cache/cache.js";
 import { getArray, sAdd, sCard, sMembers } from "../../../pkg/redis/utils.js";
@@ -40,7 +40,7 @@ export const canViewRoomForUser = async (userId, roomId) => {
 
 
 export const getListRooms = async (userId) => {
-  return await getChatRooms(userId);
+  return await getChatRoomsAll(userId);
 }
 
 export const getListRoomsGroup = async (userId, options) => {
@@ -91,9 +91,15 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private', r
     "room_members.userId": { $all: sortedIds.map(id => convertToObjectIdMongoose(id)) }, // Sửa tại đây
     room_members: { $size: 2 },
   });
+  console.log("🚀 ~ createRoomByType ~ room:", room)
+  const addRoomPromises = room.room_members.map(member => {
+    const key = KeyRedisRoom(member.userId);
+    return sAdd(key, room.room_id);
+  });
   if (!room) {
     room = await roomModel.create(data);
   }
+  await Promise.all(addRoomPromises);
   return {
     id: room.room_id,
   }
@@ -129,12 +135,12 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
 
   const realLimit = Math.min(Number(limit) || 50, 100);
 
-  const pipeline = [
+  const pipeline =  [
     { $match: match },
     { $sort: { _id: -1 } },
     { $limit: realLimit + 1 },
 
-    // Join sender
+    // --- Join người gửi ---
     {
       $lookup: {
         from: "Users",
@@ -142,13 +148,95 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         foreignField: "_id",
         as: "sender",
         pipeline: [
-          { $project: { _id: 0, fullname: "$usr_fullname", avatar: "$usr_avatar", slug: "$usr_slug", status: "$usr_status", id: "$usr_id" } }
-        ]
-      }
+          {
+            $project: {
+              _id: 0,
+              fullname: "$usr_fullname",
+              avatar: "$usr_avatar",
+              slug: "$usr_slug",
+              status: "$usr_status",
+              id: "$usr_id",
+            },
+          },
+        ],
+      },
     },
     { $addFields: { sender: { $first: "$sender" } } },
 
-    // Đếm người đã đọc
+    // --- Join message được reply (self-lookup) ---
+    {
+      $lookup: {
+        from: "Messages",
+        localField: "msg_replyTo",
+        foreignField: "_id",
+        as: "replyMsg",
+        pipeline: [
+          // lấy gọn nội dung & info người gửi của tin gốc
+          {
+            $project: {
+              _id: 1,
+              msg_id: 1,
+              msg_content: 1,
+              msg_type: 1,
+              msg_attachments: 1,
+              msg_sender: 1,
+            },
+          },
+          {
+            $lookup: {
+              from: "Users",
+              localField: "msg_sender",
+              foreignField: "_id",
+              as: "replySender",
+              pipeline: [
+                {
+                  $project: {
+                    _id: 0,
+                    fullname: "$usr_fullname",
+                    avatar: "$usr_avatar",
+                    slug: "$usr_slug",
+                    id: "$usr_id",
+                  },
+                },
+              ],
+            },
+          },
+          { $addFields: { replySender: { $first: "$replySender" } } },
+          // Thu gọn thành object "replyTo"
+          {
+            $project: {
+              _id: 0,
+              replyTo: {
+                _id: "$_id",
+                id: "$msg_id",
+                content: "$msg_content",
+                type: "$msg_type",
+                // preview đính kèm đầu tiên (nếu có)
+                attachment: {
+                  $cond: [
+                    { $gt: [{ $size: "$msg_attachments" }, 0] },
+                    {
+                      kind: { $arrayElemAt: ["$msg_attachments.kind", 0] },
+                      url: { $arrayElemAt: ["$msg_attachments.url", 0] },
+                      thumbUrl: { $arrayElemAt: ["$msg_attachments.thumbUrl", 0] },
+                      mimeType: { $arrayElemAt: ["$msg_attachments.mimeType", 0] },
+                      width: { $arrayElemAt: ["$msg_attachments.width", 0] },
+                      height: { $arrayElemAt: ["$msg_attachments.height", 0] },
+                      duration: { $arrayElemAt: ["$msg_attachments.duration", 0] },
+                    },
+                    null,
+                  ],
+                },
+                sender: "$replySender",
+              },
+            },
+          },
+        ],
+      },
+    },
+    { $addFields: { replyTo: { $first: "$replyMsg.replyTo" } } },
+
+    // --- Đếm người đã đọc ---
     {
       $lookup: {
         from: "MessageEvents",
@@ -160,42 +248,48 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
               $expr: {
                 $and: [
                   { $eq: ["$event_msgId", "$$mid"] },
-                  { $eq: ["$event_type", "readed"] }
-                ]
-              }
-            }
+                  { $eq: ["$event_type", "readed"] },
+                ],
+              },
+            },
           },
-          { $group: { _id: "$event_msgId", readers: { $addToSet: "$event_senderId" }, readCount: { $sum: 1 } } }
-        ]
-      }
+          // nhóm để lấy danh sách người đọc & số lượng
+          {
+            $group: {
+              _id: "$event_msgId",
+              readers: { $addToSet: "$event_userId" }, // ✅ sửa lại event_userId
+              readCount: { $sum: 1 },
+            },
+          },
+        ],
+      },
     },
     {
       $addFields: {
         readCount: { $ifNull: [{ $first: "$reads.readCount" }, 0] },
-        readers: { $ifNull: [{ $first: "$reads.readers" }, []] }
-      }
+        readers: { $ifNull: [{ $first: "$reads.readers" }, []] },
+      },
     },
 
-    // Tôi đã đọc chưa?
+    // --- tôi đã đọc chưa ---
     { $addFields: { isReadByMe: { $in: [uid, "$readers"] } } },
 
-    // Project gọn
+    // --- Project gọn cho response ---
     {
       $project: {
         _id: 1,
-        id: "$msg_id",                 // public message id
+        id: "$msg_id",
         content: "$msg_content",
         type: "$msg_type",
-        // room: "$msg_room",
-        // senderId: "$msg_sender",
         createdAt: 1,
         updatedAt: 1,
         sender: 1,
         readCount: 1,
-        isReadByMe: 1
-      }
-    }
-  ];
+        isReadByMe: 1,
+        replyTo: 1, // ✅ thêm vào output
+      },
+    },
+  ]
 
   let docs = await messageModel.aggregate(pipeline);
 
