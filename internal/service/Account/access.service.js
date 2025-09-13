@@ -65,8 +65,10 @@ const loginAccount = async (payload) => {
   }
   return {
     user: omitInfoData({ fields: OmitUser, object: infor }),
-    tokens,
-    expiresIn: expiresIn(7)
+    tokens: {
+      ...tokens,
+      expiresIn: expiresIn(7)
+    },
   };
 
 }
@@ -81,8 +83,10 @@ const refreshToken = async (decoded) => {
     throw new AuthFailureError(" Unable to refresh token");
   }
   return {
-    tokens,
-    expiresIn: expiresIn(7)
+    tokens: {
+      ...tokens,
+      expiresIn: expiresIn(7)
+    }
   };
 }
 const logoutAccount = async (decoded) => {

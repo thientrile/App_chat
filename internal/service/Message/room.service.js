@@ -7,6 +7,7 @@ import { findRoomById, getChatRooms, getChatRoomsAll, listRoomIdByUserId } from 
 import { checkUserExistByUserId, userFindById } from "../../repository/user.repo.js";
 import { KeyOnlineSocket, KeyRedisRoom } from "../../../pkg/cache/cache.js";
 import { getArray, sAdd, sCard, sMembers } from "../../../pkg/redis/utils.js";
+import { uploadDisk } from "../../../pkg/multer/multer.js";
 
 
 export const canViewRoomForUser = async (userId, roomId) => {
@@ -84,7 +85,7 @@ export const createRoomByType = async (userId, usr_ids, room_type = 'private', r
 
   if (room_type === "group") {
     const room = await roomModel.create(data);
-    return { id: room.room_id };
+    return room; // Trả về toàn bộ thông tin phòng nhóm mới tạo
   }
   let room = await roomModel.findOne({
     room_type: data.room_type,
