@@ -1,5 +1,5 @@
 import { BadRequestError } from "../../../pkg/response/error.js";
-import { uploadMsg, uploadImage } from "../../service/Upload/upload.service.js";
+import { uploadMsg } from "../../service/Upload/upload.service.js";
 import { SuccessReponse } from "../../../pkg/response/success.js";
 
 
