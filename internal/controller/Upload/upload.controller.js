@@ -1,7 +1,6 @@
 import { BadRequestError } from "../../../pkg/response/error.js";
-import { uploadImages, uploadImage } from "../../service/Upload/upload.service.js";
+import { uploadMsg, uploadImage } from "../../service/Upload/upload.service.js";
 import { SuccessReponse } from "../../../pkg/response/success.js";
-import { uploadMsg } from "../../service/Upload/upload.service.js";
 
 
 export const UploadFileMsg = async (req, res) => {

@@ -195,6 +195,6 @@ export const uploadImage = async (userId, payload) => {
 };
 
 export default {
-    uploadImages,
+    uploadMsg,
     uploadImage
 };
