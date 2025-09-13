@@ -64,10 +64,10 @@ export const hybridUpload = (req, res, next) => {
 
     if (contentLength > threshold) {
         console.log(`📁 Large file detected (${Math.round(contentLength / 1024 / 1024)}MB), using disk storage`);
-        return uploadDisk.array('files', 5)(req, res, next);
+        return uploadDisk.array('files', 50)(req, res, next);
     } else {
         console.log(`💾 Small file detected (${Math.round(contentLength / 1024 / 1024)}MB), using memory storage`);
-        return updloadMemory.array('files', 10)(req, res, next);
+        return updloadMemory.array('files', 100)(req, res, next);
     }
 };
 
