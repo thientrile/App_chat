@@ -1,7 +1,7 @@
 import { SuccessReponse } from "../../../pkg/response/success.js"
 import { SocketSuccessResponse } from "../../../pkg/socketio/socketSuccess.js"
 import { findRoomById } from "../../repository/room.reop.js"
-import { readMarkMsgToRoom, sendMessageToRoom } from "../../service/Message/message.service.js"
+import { deleteMsgToRoomEveryOne, deleteMsgToRoomOnlyUser, readMarkMsgToRoom, sendMessageToRoom } from "../../service/Message/message.service.js"
 import { getListRooms, getRoomMessages } from "../../service/Message/room.service.js"
 
 
@@ -30,7 +30,7 @@ export const SktSendMsg = async ({ socket, payload }) => {
         }
     ).to(socket, room.room_id, "room:message:received").emit(socket, "room:sended:message");
 }
-
+// event readed message
 
 export const SktReadedMsg = async ({ socket, payload }) => {
     const room = await findRoomById(payload.roomId)
@@ -42,9 +42,42 @@ export const SktReadedMsg = async ({ socket, payload }) => {
     ).to(socket, room.room_id, "room:readed:message")
 }
 
+
+// event delete message only user
+export const SktDeletedMsgOnlyUser = async ({ socket, payload }) => {
+    const room = await findRoomById(payload.roomId)
+    SocketSuccessResponse.ok(
+        {
+            metadata: await deleteMsgToRoomOnlyUser(socket.decoded.userId, payload),
+        }
+    ).to(socket, room.room_id, "room:deleted_only:message")
+}
+
+
+export const SktDeletedMsgOnEveryone = async ({ socket, payload }) => {
+    const room = await findRoomById(payload.roomId)
+    SocketSuccessResponse.ok(
+        {
+            metadata: await deleteMsgToRoomEveryOne(socket.decoded.userId, payload),
+        }
+    ).to(socket, room.room_id, "room:deleted_everyone:message")
+}
+
+
+
+
+
+
+
+
+
+
+
+
+// call signaling
 export const SktIncomingCall = async ({ socket, payload }) => {
     const room = await findRoomById(payload.roomId);
-    socket.join(room.room_id);
+    // socket.join(room.room_id);
     SocketSuccessResponse.ok({
         message: "Incoming call",
         metadata: payload

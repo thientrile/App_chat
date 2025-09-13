@@ -1,5 +1,5 @@
 import { socketAsync } from "../../pkg/socketio/socket-async.js";
-import { SktAcceptCall, SktIncomingCall, SktReadedMsg, SktRejectCall, SktSendMsg, SktWebRTC } from "../controller/Message/message.controller.js";
+import { SktAcceptCall, SktDeletedMsgOnEveryone, SktDeletedMsgOnlyUser, SktIncomingCall, SktReadedMsg, SktRejectCall, SktSendMsg, SktWebRTC } from "../controller/Message/message.controller.js";
 import { findRoomById } from "../repository/room.reop.js";
 import { checkUserIshasOnline } from "../service/Connect/connect.service.js";
 import { sendMessageToRoom } from "../service/Message/message.service.js";
@@ -34,8 +34,16 @@ export const chatRoomHandler = (socket, io) => {
 
     await SktSendMsg({ socket, payload });
   }));
+  // Khi đánh dấu đã đọc tin nhắn trong room
   socket.on("room:read:message", socketAsync(socket, async ({ payload }) => {
     await SktReadedMsg({ socket, payload });
+  }))
+  socket.on("room:delete_only:message", socketAsync(socket, async ({ payload }) => {
+    await SktDeletedMsgOnlyUser({ socket, payload });
+  }))
+ 
+  socket.on("room:delete_everyone:message", socketAsync(socket, async ({ payload }) => {
+    await SktDeletedMsgOnEveryone({ socket, payload });
   }))
 };
 

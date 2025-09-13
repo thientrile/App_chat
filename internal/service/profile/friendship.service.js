@@ -96,6 +96,7 @@ export const sendFriendRequestToStranger = async (body) => {
 };
 
 export const acceptFriendRequest = async (Id, userId) => {
+  console.log("🚀 ~ acceptFriendRequest ~ Id:", Id)
   // Tìm người gửi lời mời theo userId dạng số
   const sender = await userFindById(Id);
   if (!sender) {
@@ -208,7 +209,7 @@ export const listPendingFriendRequests = async (userId, options) => {
         localField: "frp_userId1",
         foreignField: "_id",
         pipeline: [
-          { $project: { _id: 1, usr_id: 1, usr_fullname: 1, usr_avatar: 1, usr_phone: 1 } }
+          { $project: { _id: 0, id: "$usr_id", fullname: "$usr_fullname", avatar: "$usr_avatar", phone: "$usr_phone" } }
         ],
         as: "user"
       }

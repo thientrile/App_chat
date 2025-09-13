@@ -5,11 +5,13 @@ import AccoutRouter from './Account/account.router.js';
 import { healthCheck } from '../controller/index.js';
 import ProfileRouter from './Profile/profile.router.js';
 import MessageRouter from './Message/message.router.js';
+import uploadRouter from './Upload/upload.router.js';
 
-const Router =express.Router();
+const Router = express.Router();
 Router.get('/', asyncHandler(healthCheck))
 
-Router.use("/auth",AccoutRouter)
-Router.use("/profile",ProfileRouter)
+Router.use("/auth", AccoutRouter)
+Router.use("/profile", ProfileRouter)
 Router.use("/message", MessageRouter);
+Router.use("/upload", uploadRouter)
 export default Router;
