@@ -380,6 +380,7 @@ export const getChatRoomsAll = async (userId,) => {
             "$room_id"
           ]
         },
+        roomId: "$room_id",
         updatedAt: 1,
         type: "$room_type",
         last_message: {
