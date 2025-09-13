@@ -4,7 +4,7 @@ import roomModel from '../model/room.model.js';
 
 export const getChatRooms = async (userId, room_type = 'private', options = {}) => {
   const objectId = convertToObjectIdMongoose(userId);
-  const { offset, limit } = options;
+  const { q, offset, limit } = options;
   const rooms = await roomModel.aggregate([
     // 1) Các phòng mà user đang là member
     { $match: { "room_members.userId": objectId, room_type: room_type } },
@@ -181,7 +181,9 @@ export const getChatRooms = async (userId, room_type = 'private', options = {}) 
       }
     },
     { $skip: Number(offset || 0) },
-    { $limit: Number(limit || 1000) }
+    { $limit: Number(limit || 1000) },
+    // 9) (tuỳ chọn) filter theo tên
+    ...(q ? [{ $match: { name: { $regex: escape(q), $options: "i" } } }] : [])
   ]);
 
   return rooms;
