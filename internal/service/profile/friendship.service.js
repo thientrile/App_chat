@@ -199,7 +199,7 @@ export const rejectFriendRequest = async (Id, userId) => {
 
 
 export const listPendingFriendRequests = async (userId, options) => {
-  const { limit, offset } = options;
+  const { q, limit, offset } = options;
   // Lấy danh sách lời mời kết bạn đang chờ
   const pendingRequests = await friendshipModel.aggregate([
     { $match: { frp_userId2: convertToObjectIdMongoose(userId), frp_status: "pending" } },
@@ -219,7 +219,8 @@ export const listPendingFriendRequests = async (userId, options) => {
     },
     {
       $limit: Number(limit ?? 20)
-    }
+    },
+    ...(q ? [{ $match: { "user.usr_fullname": { $regex: escape(q), $options: "i" } } }] : [])
   ]);
 
   return pendingRequests.map(res => {

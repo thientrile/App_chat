@@ -1,4 +1,5 @@
 import { BadRequestError } from "../../../pkg/response/error.js";
+import { uploadImages, uploadImage } from "../../service/Upload/upload.service.js";
 import { SuccessReponse } from "../../../pkg/response/success.js";
 import { uploadMsg } from "../../service/Upload/upload.service.js";
 
@@ -43,5 +44,19 @@ export const UploadFileMsg = async (req, res) => {
                 recommendations
             }
         }
+    }).send(res);
+}
+
+
+export const uploadImageStandard = async (req, res) => {
+    const { files } = req;
+    req.body.files = files;
+    if (!files || files.length === 0) {
+        throw new BadRequestError('Please upload at least one image');
+    }
+    const result = await uploadImage(req.decoded.userId, req.body);
+    new SuccessReponse({
+        message: `Successfully uploaded ${result.length} image(s)`,
+        metadata: result
     }).send(res);
 }
