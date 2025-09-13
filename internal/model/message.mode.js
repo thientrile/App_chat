@@ -10,7 +10,8 @@ const messageSchema = new Schema({
     },
     msg_content: {
         type: String,
-        required: true,
+        // required: true,
+        default: "",
     },
     msg_attachments: [{
         id: {
