@@ -130,12 +130,13 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
   }
 
   // 3) Build match + pagination (keyset theo _id)
-  const match = { msg_room: roomObjId, msg_deleted: { $ne: true } };
+  // const match = { msg_room: roomObjId, msg_deleted: { $ne: true } };
+  const match = { msg_room: roomObjId, };
   if (cursorOid) match._id = { $lt: cursorOid };
 
   const realLimit = Math.min(Number(limit) || 50, 100);
 
-  const pipeline =  [
+  const pipeline = [
     { $match: match },
     { $sort: { _id: -1 } },
     { $limit: realLimit + 1 },
@@ -171,17 +172,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         foreignField: "_id",
         as: "replyMsg",
         pipeline: [
-          // lấy gọn nội dung & info người gửi của tin gốc
-          {
-            $project: {
-              _id: 1,
-              msg_id: 1,
-              msg_content: 1,
-              msg_type: 1,
-              msg_attachments: 1,
-              msg_sender: 1,
-            },
-          },
+          { $project: { _id: 1, msg_id: 1, msg_content: 1, msg_type: 1, msg_attachments: 1, msg_sender: 1 } },
           {
             $lookup: {
               from: "Users",
@@ -189,29 +180,18 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
               foreignField: "_id",
               as: "replySender",
               pipeline: [
-                {
-                  $project: {
-                    _id: 0,
-                    fullname: "$usr_fullname",
-                    avatar: "$usr_avatar",
-                    slug: "$usr_slug",
-                    id: "$usr_id",
-                  },
-                },
+                { $project: { _id: 0, fullname: "$usr_fullname", avatar: "$usr_avatar", slug: "$usr_slug", id: "$usr_id" } },
               ],
             },
           },
           { $addFields: { replySender: { $first: "$replySender" } } },
-          // Thu gọn thành object "replyTo"
           {
             $project: {
               _id: 0,
               replyTo: {
-                _id: "$_id",
                 id: "$msg_id",
                 content: "$msg_content",
                 type: "$msg_type",
-                // preview đính kèm đầu tiên (nếu có)
                 attachment: {
                   $cond: [
                     { $gt: [{ $size: "$msg_attachments" }, 0] },
@@ -243,24 +223,8 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         let: { mid: "$_id" },
         as: "reads",
         pipeline: [
-          {
-            $match: {
-              $expr: {
-                $and: [
-                  { $eq: ["$event_msgId", "$$mid"] },
-                  { $eq: ["$event_type", "readed"] },
-                ],
-              },
-            },
-          },
-          // nhóm để lấy danh sách người đọc & số lượng
-          {
-            $group: {
-              _id: "$event_msgId",
-              readers: { $addToSet: "$event_userId" }, // ✅ sửa lại event_userId
-              readCount: { $sum: 1 },
-            },
-          },
+          { $match: { $expr: { $and: [{ $eq: ["$event_msgId", "$$mid"] }, { $eq: ["$event_type", "readed"] }] } } },
+          { $group: { _id: "$event_msgId", readers: { $addToSet: "$event_userId" }, readCount: { $sum: 1 } } },
         ],
       },
     },
@@ -270,26 +234,80 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         readers: { $ifNull: [{ $first: "$reads.readers" }, []] },
       },
     },
-
-    // --- tôi đã đọc chưa ---
     { $addFields: { isReadByMe: { $in: [uid, "$readers"] } } },
 
-    // --- Project gọn cho response ---
+    // --- Tách riêng event del_all và del_only ---
+    // Lấy del_all (nếu từng xảy ra, coi như global)
+    {
+      $lookup: {
+        from: "MessageEvents",
+        let: { mid: "$_id" },
+        as: "delAllAgg",
+        pipeline: [
+          { $match: { $expr: { $and: [{ $eq: ["$event_msgId", "$$mid"] }, { $eq: ["$event_type", "del_all"] }] } } },
+          { $limit: 1 }, // chỉ cần biết có hay không
+          { $project: { _id: 0, hit: true } },
+        ],
+      },
+    },
+    { $addFields: { __delAll: { $gt: [{ $size: "$delAllAgg" }, 0] } } },
+
+    // Lấy danh sách user đã "delete for me" (del_only)
+    {
+      $lookup: {
+        from: "MessageEvents",
+        let: { mid: "$_id" },
+        as: "delOnlyAgg",
+        pipeline: [
+          { $match: { $expr: { $and: [{ $eq: ["$event_msgId", "$$mid"] }, { $eq: ["$event_type", "del_only"] }] } } },
+          { $group: { _id: "$event_msgId", users: { $addToSet: "$event_userId" } } },
+        ],
+      },
+    },
+    { $addFields: { __delOnlyUsers: { $ifNull: [{ $first: "$delOnlyAgg.users" }, []] } } },
+
+    // Xác định tôi có thuộc danh sách del_only không (tách riêng)
+    { $addFields: { __delOnlyByMe: { $in: [uid, "$__delOnlyUsers"] } } },
+
+    // isDeletedForMe = del_all (global) OR del_only_by_me (riêng tôi)
+    { $addFields: { isDeletedForMe: { $or: ["$__delAll", "$__delOnlyByMe"] } } },
+
+    // --- Project gọn ---
     {
       $project: {
         _id: 1,
         id: "$msg_id",
-        content: "$msg_content",
-        type: "$msg_type",
+
+        // del_all -> ẩn cho tất cả; del_only -> ẩn chỉ khi là tôi
+        content: {
+          $cond: [
+            { $or: ["$__delAll", "$__delOnlyByMe"] },
+            "",
+            "$msg_content",
+          ],
+        },
+
+        // type có thể đổi thành "deleted" nếu tôi không được xem (để UI render placeholder)
+        type: {
+          $cond: [{ $eq: ["$isDeletedForMe", true] }, "deleted", "$msg_type"],
+        },
+
         createdAt: 1,
         updatedAt: 1,
         sender: 1,
+
         readCount: 1,
         isReadByMe: 1,
-        replyTo: 1, // ✅ thêm vào output
+
+        replyTo: "$replyTo",
+
+        // Xuất 2 cờ độc lập
+        del_all: "$__delAll",        // xóa toàn cục
+        del_only: "$__delOnlyByMe",  // chỉ tôi đã xóa riêng
+        isDeletedForMe: 1,
       },
     },
-  ]
+  ];
 
   let docs = await messageModel.aggregate(pipeline);
 

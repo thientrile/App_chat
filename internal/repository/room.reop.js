@@ -345,9 +345,17 @@ export const getChatRoomsAll = async (userId,) => {
     {
       $addFields: {
         is_read: {
-          $and: [
-            { $gt: [{ $size: "$my_lastmsg_reads" }, 0] },
-            { $ne: ["$last_message.msg_sender", objectId] }
+          $or: [
+            // 1) Tin cuối do chính mình gửi -> coi như đã đọc
+            { $eq: ["$last_message.msg_sender", objectId] },
+
+            // 2) Hoặc có event 'readed' cho last_message của mình (khi không phải mình là sender)
+            {
+              $and: [
+                { $gt: [{ $size: "$my_lastmsg_reads" }, 0] },
+                { $ne: ["$last_message.msg_sender", objectId] }
+              ]
+            }
           ]
         }
       }
@@ -370,11 +378,12 @@ export const getChatRoomsAll = async (userId,) => {
             "$room_id"
           ]
         },
+        updatedAt: 1,
         type: "$room_type",
         last_message: {
-          content: "$last_message.msg_content",
+          msg_content: "$last_message.msg_content",
           createdAt: "$last_message.createdAt",
-          id: "$last_message.msg_id",
+          msg_id: "$last_message.msg_id",
         },
         name: {
           $cond: [
@@ -383,7 +392,23 @@ export const getChatRoomsAll = async (userId,) => {
             "$room_name"
           ]
         },
-        is_read: 1,
+        is_read: {
+          $cond: [
+            { $ifNull: ["$last_message._id", false] }, // có last_message?
+            {
+              $or: [
+                { $eq: ["$last_message.msg_sender", objectId] },
+                {
+                  $and: [
+                    { $gt: [{ $size: "$my_lastmsg_reads" }, 0] },
+                    { $ne: ["$last_message.msg_sender", objectId] }
+                  ]
+                }
+              ]
+            },
+            true // không có last_message -> coi như đã đọc
+          ]
+        },
         avatar: {
           $cond: [
             { $eq: ["$_hasAvatar", true] },
@@ -412,14 +437,14 @@ async function findRoomByHalf(half) {
   // Thử nửa đứng TRƯỚC: ^half\.  (có cơ hội dùng index room_id:1)
   let doc = await roomModel.findOne(
     { room_type: "private", room_id: new RegExp(`^${h}\\.`) },
-    { _id: 1, room_id: 1, room_type: 1, room_members: 1 }
+    { _id: 1, room_id: 1, room_type: 1, room_members: 1, room_name: 1 }
   ).lean();
   if (doc) return doc;
 
   // Fallback nửa đứng SAU: \.half$  (khó dùng index nhưng cần có)
   doc = await roomModel.findOne(
     { room_type: "private", room_id: new RegExp(`\\.${h}$`) },
-    { _id: 1, room_id: 1, room_type: 1, room_members: 1 }
+    { _id: 1, room_id: 1, room_type: 1, room_members: 1, room_name: 1 }
   ).lean();
 
   return doc; // null nếu không có
@@ -432,7 +457,7 @@ export async function findRoomById(roomIdOrHalf) {
     // thử group id trước
     const byGroup = await roomModel.findOne(
       { room_type: "group", room_id: s },
-      { _id: 1, room_id: 1, room_type: 1, room_members: 1 }
+      { _id: 1, room_id: 1, room_type: 1, room_members: 1, room_name: 1 }
     ).lean();
     if (byGroup) return byGroup;
 
@@ -443,7 +468,7 @@ export async function findRoomById(roomIdOrHalf) {
   // Nếu có dấu chấm → coi như full private id
   const doc = await roomModel.findOne(
     { room_type: "private", room_id: s },
-    { _id: 1, room_id: 1, room_type: 1, room_members: 1 }
+    { _id: 1, room_id: 1, room_type: 1, room_members: 1, room_name: 1 }
   ).lean();
   return doc;
 }

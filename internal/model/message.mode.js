@@ -13,12 +13,17 @@ const messageSchema = new Schema({
         required: true,
     },
     msg_attachments: [{
+        id: {
+            type: String,
+            default: () => randomId()
+        },
         kind: { type: String, enum: ['image', 'video', 'file'], required: true },
         url: { type: String, required: true },
         name: { type: String },
         size: { type: Number, required: true },
         mimeType: { type: String, required: true },
         thumbUrl: { type: String },
+        status: { type: String, enum: ['uploaded', 'processing', 'failed'], default: 'uploaded' },
 
         // chỉ có image
 
