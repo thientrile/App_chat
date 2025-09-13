@@ -165,36 +165,8 @@ export const uploadMsg= async (userId, payload) => {
 };
 
 
-export const uploadImage = async (userId, payload) => {
-    try {
-        const { files } = payload;
-        console.log("🚀 ~ uploadImage ~ files:", files);
-
-        let uploadInput;
-        if (files[0].buffer) {
-            // Convert buffer to base64 data URI
-            const mimeType = files[0].mimetype || 'image/jpeg';
-            const base64 = files[0].buffer.toString('base64');
-            uploadInput = `data:${mimeType};base64,${base64}`;
-        } else if (files[0].path) {
-            uploadInput = files[0].path;
-        } else {
-            throw new BadRequestError('No valid file input');
-        }
-
-        const result = await cloudinary.uploader.upload(uploadInput, {
-            folder: `/avatars/${userId}`,
-            public_id: randomId(),
-            resource_type: "auto"
-        });
-        return result;
-    } catch (err) {
-        console.error('Error uploading image::', err);
-        throw new BadRequestError('Error uploading image');
-    }
-};
 
 export default {
-    uploadImages,
+    uploadMsg,
     uploadImage
 };
