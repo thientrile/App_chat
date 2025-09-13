@@ -17,7 +17,7 @@ const messageSchema = new Schema({
             type: String,
             default: () => randomId()
         },
-        kind: { type: String, enum: ['image', 'video', 'file'], required: true },
+        kind: { type: String, enum: ['photo', 'video', 'file'], required: true },
         url: { type: String, required: true },
         name: { type: String },
         size: { type: Number, required: true },

@@ -18,7 +18,6 @@ const userSchema = new Schema({
     },
     usr_email: {
         type: String,
-        // required: true,
         unique: [true, 'Email already exists'],
         sparse: true,
     },
@@ -26,7 +25,6 @@ const userSchema = new Schema({
         type: String,
         unique: [true, 'Phone number already exists'],
         sparse: true,
-        default: null
     },
     usr_salt: {
         type: String,

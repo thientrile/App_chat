@@ -48,8 +48,8 @@ const toAttachmentDTO = (uploadResult, override = {}) => {
     }
     return dto;
 };
-
-export const uploadImages = async (userId, payload) => {
+// xử lý gửi msg kèm file
+export const uploadMsg= async (userId, payload) => {
     const { files, roomId, msgId } = payload;
     console.log("🚀 ~ uploadImages ~ files count:", files?.length);
     const room = await findRoomById(roomId);
@@ -131,23 +131,7 @@ export const uploadImages = async (userId, payload) => {
             });
         });
 
-        // 3. Optionally save metadata to DB here if needed
-        // const newImages = uploadResults.map((result) => ({
-        //     img_uploaderId: convertToObjectIdMongoose(userId),
-        //     img_albumId: findAlbum ? findAlbum._id : null,
-        //     img_url: result.url,
-        //     img_secureUrl: result.secure_url,
-        //     img_publicId: result.public_id,
-        //     img_format: result.format,
-        //     img_width: result.width,
-        //     img_height: result.height,
-        //     img_bytes: result.bytes,
-        //     img_tags: result.tags || tags,
-        //     img_caption: caption,
-        // }));
 
-        // console.log(`💾 Saving ${newImages.length} images to database`);
-        // const images = await ImageModel.insertMany(newImages);
 
         // Return the shaped attachments for the client to use in Message.msg_attachments
         const rmId = room.room_id.includes(".") ? room.room_id.replace(".", "").replace(roomId, "") : roomId;
@@ -179,6 +163,3 @@ export const uploadImages = async (userId, payload) => {
     }
 };
 
-export default {
-    uploadImages,
-};

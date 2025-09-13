@@ -295,7 +295,7 @@ export const getRoomMessages = async (userId, roomId, limit = 50, cursor = null)
         createdAt: 1,
         updatedAt: 1,
         sender: 1,
-
+        attachments: "$msg_attachments",
         readCount: 1,
         isReadByMe: 1,
 

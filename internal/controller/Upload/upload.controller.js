@@ -1,10 +1,11 @@
 import { BadRequestError } from "../../../pkg/response/error.js";
-import { uploadImages } from "../../service/Upload/upload.service.js";
 import { SuccessReponse } from "../../../pkg/response/success.js";
+import { uploadMsg } from "../../service/Upload/upload.service.js";
 
 
-export const uploadImageOptimized = async (req, res) => {
+export const UploadFileMsg = async (req, res) => {
     const { files } = req;
+    console.log("🚀 ~ UploadFileMsg ~ files:", files)
     req.body.files = files;
     
     if (!files || files.length === 0) {
@@ -26,7 +27,7 @@ export const uploadImageOptimized = async (req, res) => {
     console.log(`📊 Upload analysis: ${files.length} files, ${Math.round(totalSize/1024/1024)}MB, ${largeFiles.length} large files`);
 
     const startTime = Date.now();
-    const result = await uploadImages(req.decoded.userId, req.body);
+    const result = await uploadMsg(req.decoded.userId, req.body);
     const uploadTime = Date.now() - startTime;
 
     new SuccessReponse({
