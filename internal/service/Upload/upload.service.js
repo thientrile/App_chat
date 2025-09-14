@@ -187,7 +187,10 @@ export const uploadImage = async (userId, payload) => {
             public_id: randomId(),
             resource_type: "auto"
         });
-        return result;
+        return {
+            ...result,
+            url: result.secure_url || result.url
+        };
     } catch (err) {
         console.error('Error uploading image::', err);
         throw new BadRequestError('Error uploading image');
